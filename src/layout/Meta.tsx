@@ -10,7 +10,7 @@ const Meta: React.FC<IMetaProps> = () => {
   return (
     <>
       <Head>
-        <link rel="icon" href="/success-life.png" />
+        <link rel="icon" href="/mentoring.png" />
       </Head>
       <NextSeo
         title={MetaData.title}
