@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.form-control {
+  @apply mb-3;
+}
+.form-control > label {
+  @apply mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300;
+}
+.text-faint {
+  @apply opacity-60 text-xs;
+}
+input::placeholder {
+  @apply text-xs;
+}
+
+.screen-height-media {
+  min-height: calc(100vh - 120px);
+}
+
+.max-screen-height-media {
+  max-height: calc(100vh - 50px);
+  overflow: auto;
+}
+
+.max-screen-height-media {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.max-screen-height-media::-webkit-scrollbar {
+  display: none;
+}
+
+select {
+  -moz-appearance: none; 
+  -webkit-appearance: none; 
+  appearance: none;
+}
+
+.menu li a:focus {
+   @apply bg-primary text-primary-content;
+}
+
+html, body {
+  overflow: hidden;
+  min-height: 100%;
+  height: auto;
+}
+
+#__next {
+  min-height: 100%;
+  overflow: hidden;
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.btn-white {
+  @apply flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-white px-4 py-2
+  text-sm font-semibold text-indigo-600 shadow-md hover:bg-gray-50 transition border border-gray-150;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/20 dark:border-slate-800/20 shadow-xl;
+}
