@@ -22,10 +22,6 @@ const AppRouter: React.FC<IAppRouterProps> = ({ isOpenMenu }) => {
       <Routes>
         <Route path="/" element={<Home />} />
         
-        
-
-
-
         {/* Core Layout Routes */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
