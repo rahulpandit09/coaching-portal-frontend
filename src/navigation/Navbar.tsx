@@ -67,9 +67,9 @@ const Navbar: React.FC<INavbarProps> = ({
           onClick={handleNotificationClick}
           className="btn btn-ghost btn-circle btn-sm relative text-gray-500 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400"
         >
-          <Bell size={20} />
+          <Bell size={25} />
           {notificationsCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-rose-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
+            <span className="absolute top-0 right-0 w-4 h-4 bg-rose-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
               {notificationsCount}
             </span>
           )}
