@@ -26,7 +26,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <TokenProvider>
           <Head>
             <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <link rel="icon" href="/mentoring.png" />
+            <link rel="icon" href="/coachinglogo.png" />
           </Head>
           <div className="min-h-screen h-full bg-base-200 dark:bg-slate-900 transition-colors duration-200">
             {!isPublicRoute ? (
