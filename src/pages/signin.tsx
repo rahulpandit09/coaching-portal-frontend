@@ -26,9 +26,7 @@ const SignIn = () => {
       try {
         await loginUser(values.Username, values.password);
         toast.success("Login successfull!");
-        router.replace("/");
-
-        router.replace("/");
+        router.replace("/home");
       } catch (err: any) {
         toast.error(
           err?.response?.data?.detail || "Invalid username or password",
