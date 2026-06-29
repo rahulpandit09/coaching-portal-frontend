@@ -4,34 +4,60 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Mail, ArrowLeft, Send } from "lucide-react";
-import { forgotPassword } from "@/api/authApi";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
+import { verifyOtp } from "@/api/authApi";
 
-
-const ForgotPassword = () => {
+const VerifyOtp = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { email } = router.query;
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
+  const handleOtpChange = (value: string, index: number) => {
+    if (!/^\d*$/.test(value)) return;
+
+    const newOtp = [...otp];
+    newOtp[index] = value;
+
+    setOtp(newOtp);
+
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+
+      (nextInput as HTMLInputElement)?.focus();
+    }
+  };
   const formik = useFormik({
-    initialValues: {
-      email: "",
-    },
-    validationSchema: Yup.object({
-      email: Yup.string()
-        .email("Invalid email address")
-        .required("Email is required"),
-    }),
-    onSubmit: async (values) => {
+    initialValues: {},
+
+    validationSchema: Yup.object({}),
+
+    onSubmit: async () => {
       setLoading(true);
+
       try {
-        const response = await forgotPassword(values.email);
-        console.log(response);
+        const otpValue = otp.join("");
+        if (otpValue.length !== 6) {
+          toast.error("Please enter a valid 6-digit OTP");
+          setLoading(false);
+          return;
+        }
+        if (!email) {
+          toast.error("Email not found. Please try again.");
+          setLoading(false);
+          return;
+        }
+        // API Call
+        await verifyOtp(email as string, otpValue);
         toast.success(
-          "TOP sent successfully! Please check your email for the reset link.",
+          "OTP sent successfully! Please check your email.",
         );
-        router.push(`/verify-otp?email=${values.email}`);
+        router.push(`/reset-password?email=${email}`);
       } catch (err: any) {
-        toast.error(err?.response?.data?.detail || "Failed to send link");
+        toast.error(
+  err?.response?.data?.detail ||
+  "OTP verification failed"
+);
       } finally {
         setLoading(false);
       }
@@ -62,13 +88,13 @@ const ForgotPassword = () => {
         py-6 sm:py-8 md:py-10
       "
       >
-        {/* Top dots */}
+        {/* Top dots like login */}
         <div className="flex justify-center gap-2 mb-4 sm:mb-6">
           <div className="w-3 h-3 rounded-full bg-blue-500"></div>
           <div className="w-3 h-3 rounded-full bg-orange-400"></div>
         </div>
 
-        {/* Header */}
+        {/* Heading */}
         <div className="text-center mb-8 sm:mb-10">
           <h2
             className="
@@ -79,57 +105,53 @@ const ForgotPassword = () => {
             text-[#1f3f93]
           "
           >
-            Forgot Password
+            Verify OTP
           </h2>
 
           <p
             className="
-            mt-2
             text-gray-500
+            mt-2
             text-sm
             sm:text-base
             md:text-lg
           "
           >
-            Enter your email and we’ll send you a reset link
+            Enter the 6 digit OTP sent to your email
           </p>
         </div>
 
         {/* Form */}
         <form onSubmit={formik.handleSubmit} className="space-y-5 sm:space-y-6">
-          {/* Email */}
           <div>
-            <label
-              htmlFor="email"
-              className="block mb-2 sm:mb-3 font-semibold text-[#1f3f93] text-sm sm:text-base"
-            >
-              Email Address
+            <label className="block mb-3 font-semibold text-[#1f3f93] text-sm sm:text-base">
+              Enter OTP
             </label>
 
-            <div className="relative">
-              <Mail className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
-
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="name@example.com"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.email}
-                className={`w-full h-12 sm:h-14 pl-11 pr-3 rounded-xl border bg-white outline-none focus:border-blue-400 ${
-                  formik.touched.email && formik.errors.email
-                    ? "border-red-500"
-                    : "border-blue-200"
-                }`}
-              />
+            <div className="flex justify-between gap-2 sm:gap-3">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  id={`otp-${index}`}
+                  type="text"
+                  maxLength={1}
+                  inputMode="numeric"
+                  value={digit}
+                  onChange={(e) => handleOtpChange(e.target.value, index)}
+                  className="
+          w-12 h-12
+          sm:w-14 sm:h-14
+          rounded-xl
+          border border-blue-200
+          text-center
+          text-lg font-semibold
+          bg-white
+          outline-none
+          focus:border-blue-400
+        "
+                />
+              ))}
             </div>
-
-            {formik.touched.email && formik.errors.email && (
-              <span className="text-red-500 text-xs mt-1 block">
-                {formik.errors.email}
-              </span>
-            )}
           </div>
 
           {/* Button */}
@@ -155,7 +177,7 @@ const ForgotPassword = () => {
               <span className="loading loading-spinner loading-sm"></span>
             ) : (
               <>
-                Send Reset Link <Send size={16} />
+                Verify OTP <ShieldCheck size={18} />
               </>
             )}
           </button>
@@ -164,11 +186,10 @@ const ForgotPassword = () => {
         {/* Footer */}
         <div className="mt-6 sm:mt-8 text-center">
           <Link
-            href="/signin"
+            href="/forgot-password"
             className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800"
           >
-            <ArrowLeft size={16} />
-            Back to Sign In
+            <ArrowLeft size={16} /> Back to Sign In
           </Link>
         </div>
       </div>
@@ -176,4 +197,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default VerifyOtp;

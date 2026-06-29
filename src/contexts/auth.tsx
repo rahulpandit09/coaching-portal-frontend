@@ -4,6 +4,7 @@ import nookies from "nookies"
 import { useUserStore } from "../store/user"
 import { IUser } from "@/utils/types"
 import { extractPermissions, PermissionMap } from "@/utils/permissionUtils"
+import { verify } from "crypto"
 
 interface AuthContextType {
   user: IUser | null
@@ -41,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const token = nookies.get(null).token || localStorage.getItem("accessToken")
-    const PUBLIC_ROUTES = ["/signin", "/forgot-password", "/reset-password", "/user-register"]
+    const PUBLIC_ROUTES = ["/signin", "/forgot-password", "/reset-password", "/user-register","/verify-otp"]
     const path = router.pathname
 
     if (!token && !PUBLIC_ROUTES.includes(path)) {
