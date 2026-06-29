@@ -35,81 +35,169 @@ const ResetPassword = () => {
   })
 
   return (
-    <div className="w-full max-w-md p-8 bg-white dark:bg-slate-950 rounded-3xl border border-gray-150 dark:border-slate-800 shadow-2xl">
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Reset Password</h2>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          Define a secure new password for your account.
-        </p>
-      </div>
+    <div
+      className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 bg-cover bg-center bg-no-repeat relative backdrop:blur-sm"
+      style={{
+        backgroundImage: "url('/coachingimage.png')",
+      }}
+    >
+      {/* White Overlay */}
+      <div className="absolute inset-0 bg-white/70"></div>
 
-      <form onSubmit={formik.handleSubmit} className="space-y-4">
-        <div className="form-control">
-          <label htmlFor="password">New Password</label>
-          <div className="relative">
-            <Lock className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-gray-450" />
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="••••••••"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.password}
-              className={`input input-bordered w-full pl-11 rounded-xl bg-gray-50/50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 ${
-                formik.touched.password && formik.errors.password ? "border-rose-500 focus:border-rose-500" : ""
-              }`}
-            />
-          </div>
-          {formik.touched.password && formik.errors.password && (
-            <span className="text-rose-500 text-xs mt-1 block">{formik.errors.password}</span>
-          )}
+      {/* Card */}
+      <div
+        className="
+        relative z-10
+        w-full
+        max-w-md
+        sm:max-w-lg
+        bg-primary-content
+        rounded-3xl
+        shadow-[0_20px_50px_rgba(0,0,0,0.40)]
+        px-6 sm:px-8 md:px-10
+        py-6 sm:py-8 md:py-10
+      "
+      >
+        {/* Top dots like login */}
+        <div className="flex justify-center gap-2 mb-4 sm:mb-6">
+          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+          <div className="w-3 h-3 rounded-full bg-orange-400"></div>
         </div>
 
-        <div className="form-control">
-          <label htmlFor="confirmPassword">Confirm Password</label>
-          <div className="relative">
-            <Lock className="absolute left-3.5 top-3.5 h-4.5 w-4.5 text-gray-450" />
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              placeholder="••••••••"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.confirmPassword}
-              className={`input input-bordered w-full pl-11 rounded-xl bg-gray-50/50 dark:bg-slate-900 border-gray-200 dark:border-slate-800 ${
-                formik.touched.confirmPassword && formik.errors.confirmPassword ? "border-rose-500 focus:border-rose-500" : ""
-              }`}
-            />
-          </div>
-          {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-            <span className="text-rose-500 text-xs mt-1 block">{formik.errors.confirmPassword}</span>
-          )}
+        {/* Heading */}
+        <div className="text-center mb-8 sm:mb-10">
+          <h2
+            className="
+            text-3xl
+            sm:text-4xl
+            md:text-5xl
+            font-bold
+            text-[#1f3f93]
+          "
+          >
+            Reset Password
+          </h2>
+
+          <p
+            className="
+            text-gray-500
+            mt-2
+            text-sm
+            sm:text-base
+            md:text-lg
+          "
+          >
+            Define a secure new password for your account
+          </p>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="btn btn-primary w-full mt-2 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold"
-        >
-          {loading ? (
-            <span className="loading loading-spinner loading-sm"></span>
-          ) : (
-            <>
-              Reset Password <ShieldCheck size={16} />
-            </>
-          )}
-        </button>
-      </form>
+        {/* Form */}
+        <form onSubmit={formik.handleSubmit} className="space-y-5 sm:space-y-6">
 
-      <div className="mt-6 text-center">
-        <Link
-          href="/signin"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
-        >
-          <ArrowLeft size={16} /> Back to Sign In
-        </Link>
+          {/* New Password */}
+          <div>
+            <label className="block mb-2 sm:mb-3 font-semibold text-[#1f3f93] text-sm sm:text-base">
+              New Password
+            </label>
+
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-4 h-5 w-5 text-gray-400" />
+
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.password}
+                className={`w-full h-12 sm:h-14 pl-11 px-4 rounded-xl border bg-white outline-none focus:border-blue-400
+              ${formik.touched.password && formik.errors.password
+                    ? "border-red-500"
+                    : "border-blue-200"
+                  }`}
+              />
+            </div>
+
+            {formik.touched.password && formik.errors.password && (
+              <span className="text-red-500 text-xs mt-1 block">
+                {formik.errors.password}
+              </span>
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block mb-2 sm:mb-3 font-semibold text-[#1f3f93] text-sm sm:text-base">
+              Confirm Password
+            </label>
+
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-4 h-5 w-5 text-gray-400" />
+
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.confirmPassword}
+                className={`w-full h-12 sm:h-14 pl-11 px-4 rounded-xl border bg-white outline-none focus:border-blue-400
+              ${formik.touched.confirmPassword &&
+                    formik.errors.confirmPassword
+                    ? "border-red-500"
+                    : "border-blue-200"
+                  }`}
+              />
+            </div>
+
+            {formik.touched.confirmPassword &&
+              formik.errors.confirmPassword && (
+                <span className="text-red-500 text-xs mt-1 block">
+                  {formik.errors.confirmPassword}
+                </span>
+              )}
+          </div>
+
+          {/* Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="
+            w-full
+            h-12 sm:h-14
+            rounded-xl
+            text-white
+            font-semibold
+            text-base sm:text-lg
+            bg-gradient-to-r
+            from-[#2F65F5]
+            to-[#A78BFA]
+            hover:opacity-90
+            transition
+            flex items-center justify-center gap-2
+          "
+          >
+            {loading ? (
+              <span className="loading loading-spinner loading-sm"></span>
+            ) : (
+              <>
+                Reset Password <ShieldCheck size={18} />
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <div className="mt-6 sm:mt-8 text-center">
+          <Link
+            href="/signin"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800"
+          >
+            <ArrowLeft size={16} /> Back to Sign In
+          </Link>
+        </div>
       </div>
     </div>
   )

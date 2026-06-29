@@ -45,15 +45,58 @@ const UserRegister = () => {
   })
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md p-10 bg-white rounded-3xl border border-gray-200 shadow-xl">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 bg-cover bg-center bg-no-repeat relative backdrop:blur-sm"
+      style={{
+        backgroundImage: "url('/coachingimage.png')",
+      }}
+    >
+      {/* White Overlay */}
+      <div className="absolute inset-0 bg-white/70"></div>
+
+      {/* Card */}
+      <div
+        className="
+        relative z-10
+        w-full
+        max-w-md
+        sm:max-w-lg
+        bg-primary-content
+        rounded-3xl
+        shadow-[0_20px_50px_rgba(0,0,0,0.40)]
+        px-6 sm:px-8 md:px-10
+        py-6 sm:py-8 md:py-10
+      "
+      >
+        {/* Top dots */}
+        <div className="flex justify-center gap-2 mb-4 sm:mb-6">
+          <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+          <div className="w-3 h-3 rounded-full bg-orange-400"></div>
+        </div>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-black">
+          <h2
+            className="
+            text-3xl
+            sm:text-4xl
+            md:text-5xl
+            font-bold
+            text-[#1f3f93]
+          "
+          >
             Create Account
           </h2>
-          <p className="mt-2 text-gray-500 text-base">
+
+          <p
+            className="
+            mt-2
+            text-gray-500
+            text-sm
+            sm:text-base
+            md:text-lg
+          "
+          >
             Join GrowPortal to track your goals
           </p>
         </div>
@@ -68,7 +111,7 @@ const UserRegister = () => {
             <div>
               <label
                 htmlFor="firstName"
-                className="block mb-2 text-sm font-semibold text-black"
+                className="block mb-2 text-sm font-semibold text-[#1f3f93]"
               >
                 First Name
               </label>
@@ -84,9 +127,9 @@ const UserRegister = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.firstName}
-                  className={`w-full h-12 pl-10 pr-3 rounded-xl border bg-gray-50 outline-none ${formik.touched.firstName && formik.errors.firstName
-                      ? "border-red-500"
-                      : "border-gray-300"
+                  className={`w-full h-12 pl-10 pr-3 rounded-xl border bg-white outline-none focus:border-blue-400 ${formik.touched.firstName && formik.errors.firstName
+                    ? "border-red-500"
+                    : "border-blue-200"
                     }`}
                 />
               </div>
@@ -102,7 +145,7 @@ const UserRegister = () => {
             <div>
               <label
                 htmlFor="lastName"
-                className="block mb-2 text-sm font-semibold text-black"
+                className="block mb-2 text-sm font-semibold text-[#1f3f93]"
               >
                 Last Name
               </label>
@@ -118,9 +161,9 @@ const UserRegister = () => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   value={formik.values.lastName}
-                  className={`w-full h-12 pl-10 pr-3 rounded-xl border bg-gray-50 outline-none ${formik.touched.lastName && formik.errors.lastName
-                      ? "border-red-500"
-                      : "border-gray-300"
+                  className={`w-full h-12 pl-10 pr-3 rounded-xl border bg-white outline-none focus:border-blue-400 ${formik.touched.lastName && formik.errors.lastName
+                    ? "border-red-500"
+                    : "border-blue-200"
                     }`}
                 />
               </div>
@@ -137,7 +180,7 @@ const UserRegister = () => {
           <div>
             <label
               htmlFor="email"
-              className="block mb-2 text-sm font-semibold text-black"
+              className="block mb-2 text-sm font-semibold text-[#1f3f93]"
             >
               Email Address
             </label>
@@ -153,9 +196,9 @@ const UserRegister = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.email}
-                className={`w-full h-12 pl-10 pr-3 rounded-xl border bg-gray-50 outline-none ${formik.touched.email && formik.errors.email
-                    ? "border-red-500"
-                    : "border-gray-300"
+                className={`w-full h-12 pl-10 pr-3 rounded-xl border bg-white outline-none focus:border-blue-400 ${formik.touched.email && formik.errors.email
+                  ? "border-red-500"
+                  : "border-blue-200"
                   }`}
               />
             </div>
@@ -171,7 +214,7 @@ const UserRegister = () => {
           <div>
             <label
               htmlFor="password"
-              className="block mb-2 text-sm font-semibold text-black"
+              className="block mb-2 text-sm font-semibold text-[#1f3f93]"
             >
               Password
             </label>
@@ -187,9 +230,9 @@ const UserRegister = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.password}
-                className={`w-full h-12 pl-10 pr-3 rounded-xl border bg-gray-50 outline-none ${formik.touched.password && formik.errors.password
-                    ? "border-red-500"
-                    : "border-gray-300"
+                className={`w-full h-12 pl-10 pr-3 rounded-xl border bg-white outline-none focus:border-blue-400 ${formik.touched.password && formik.errors.password
+                  ? "border-red-500"
+                  : "border-blue-200"
                   }`}
               />
             </div>
@@ -205,7 +248,19 @@ const UserRegister = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md transition"
+            className="
+            w-full
+            h-12 sm:h-14
+            rounded-xl
+            text-white
+            font-semibold
+            bg-gradient-to-r
+            from-[#2F65F5]
+            to-[#A78BFA]
+            hover:opacity-90
+            transition
+            flex items-center justify-center gap-2
+          "
           >
             {loading ? (
               <span className="loading loading-spinner loading-sm"></span>
