@@ -1,100 +1,104 @@
-import axios from "axios"
-import Router from "next/router"
-import nookies from "nookies"
 
-const PUBLIC_ROUTES = ["/signin", "/forgot-password", "/reset-password", "/user-register"]
+import axios, {
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios"
+import {
+  parseCookies,
+  setCookie,
+  destroyCookie,
+} from "nookies"
 
-let isRefreshing = false
-let failedQueue: any[] = []
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
 
-const processQueue = (error: any, token: string | null = null) => {
-  failedQueue.forEach((p) => {
-    if (error) p.reject(error)
-    else p.resolve(token)
-  })
-  failedQueue = []
-}
-
-const redirectToSignIn = () => {
-  if (typeof window !== "undefined") {
-    const path = window.location?.pathname || ""
-    if (!PUBLIC_ROUTES.includes(path)) {
-      Router.replace("/signin")
-    }
-  }
-}
-
+// Create axios instance
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
-  headers: { "Content-Type": "application/json" },
+  baseURL: BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 })
 
-// Set token
-const { token } = nookies.get(null)
-if (token) {
-  axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`
-}
 
-// Request Interceptor
-axiosInstance.interceptors.request.use((config) => {
-  const { token } = nookies.get(null)
-  if (token) config.headers.Authorization = `Bearer ${token}`
-  return config
-})
+// REQUEST INTERCEPTOR
+axiosInstance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const cookies = parseCookies()
+    const accessToken = cookies.access_token
 
-// Response Interceptor
-axiosInstance.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    const originalRequest = error.config
-    const status = error?.response?.status
-
-    if (typeof window !== "undefined") {
-      const path = window.location?.pathname || ""
-      if (PUBLIC_ROUTES.includes(path)) return Promise.reject(error)
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`
     }
 
-    if (status === 401 && !originalRequest._retry) {
-      const refreshToken = nookies.get(null)?.refreshToken
-      if (!refreshToken) {
-        redirectToSignIn()
-        return Promise.reject(error)
-      }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
 
+
+
+// RESPONSE INTERCEPTOR
+axiosInstance.interceptors.response.use(
+  (response) => response,
+
+  async (error: AxiosError<any>) => {
+    const originalRequest: any = error.config
+
+    // Token expired → refresh token
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true
 
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({
-            resolve: (newToken: string) => {
-              originalRequest.headers.Authorization = `Bearer ${newToken}`
-              resolve(axiosInstance(originalRequest))
-            },
-            reject,
-          })
-        })
-      }
-
-      isRefreshing = true
       try {
-        const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/User/refresh-token`,
-          { refreshToken }
+        const cookies = parseCookies()
+        const refreshToken = cookies.refresh_token
+
+        if (!refreshToken) {
+          throw error
+        }
+
+        // Call refresh API
+        const response = await axios.post(
+          `${BASE_URL}/auth/refresh`,
+          {
+            refresh_token: refreshToken,
+          }
         )
 
-        const { accessToken } = res.data
+        const newAccessToken =
+          response.data.access_token
 
-        nookies.set(null, "token", accessToken, { path: "/" })
-        processQueue(null, accessToken)
+        // Save new access token
+        setCookie(
+          null,
+          "access_token",
+          newAccessToken,
+          {
+            maxAge: 60 * 60,
+            path: "/",
+          }
+        )
 
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`
+        // Retry original request
+        originalRequest.headers.Authorization =
+          `Bearer ${newAccessToken}`
+
         return axiosInstance(originalRequest)
-      } catch (err) {
-        processQueue(err, null)
-        redirectToSignIn()
-        return Promise.reject(err)
-      } finally {
-        isRefreshing = false
+
+      } catch (refreshError) {
+        // Clear cookies
+        destroyCookie(null, "access_token")
+        destroyCookie(null, "refresh_token")
+
+        // Redirect login
+        if (typeof window !== "undefined") {
+          window.location.href = "/login"
+        }
+
+        return Promise.reject(refreshError)
       }
     }
 

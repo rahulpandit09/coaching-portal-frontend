@@ -3,18 +3,14 @@ import { useRouter } from "next/router";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import nookies from "nookies";
 import Link from "next/link";
-import { Mail, Lock, LogIn, ChevronRight, Info, User } from "lucide-react";
+import { Lock, User, Eye, EyeOff } from "lucide-react";
+import { loginUser } from "../components/api/auth";
 
 const SignIn = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
-  // Interactive role selector for easy testing/demo
-  const [selectedRole, setSelectedRole] = useState<
-    "admin" | "coach" | "client"
-  >("coach");
+  const [showPassword, setShowPassword] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -22,226 +18,27 @@ const SignIn = () => {
       password: "",
     },
     validationSchema: Yup.object({
-      email: Yup.string()
-        .email("Invalid email address")
-        .required("Email is required"),
-      password: Yup.string()
-        .min(6, "Must be at least 6 characters")
-        .required("Password is required"),
+      Username: Yup.string().required("Username required"),
+      password: Yup.string().required("Password required"),
     }),
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        // Build mock user matching selected demo role
-        let mockUser: any = {};
+        await loginUser(values.Username, values.password);
+        toast.success("Login successfull!");
+        router.replace("/");
 
-        if (selectedRole === "admin") {
-          mockUser = {
-            userId: 1,
-            username: "admin_portal",
-            emailAddress: values.Username,
-            firstName: "Alex",
-            lastName: "Administrator",
-            roleName: "Portal Admin",
-            isSupervisor: false,
-            rolePermissions: [
-              {
-                roleId: 1,
-                roleName: "Admin",
-                menus: [
-                  {
-                    menuId: 1,
-                    menuName: "Dashboard",
-                    menuUrl: "/admin/dashboard",
-                    menuIcon: "layout-dashboard",
-                    subMenus: [
-                      {
-                        subMenuId: 101,
-                        subMenuName: "Manage Portal",
-                        subMenuUrl: "/admin/dashboard",
-                        subMenuIcon: "shield",
-                      },
-                    ],
-                  },
-                  {
-                    menuId: 2,
-                    menuName: "Settings",
-                    menuUrl: "/settings",
-                    menuIcon: "settings",
-                    subMenus: [
-                      {
-                        subMenuId: 201,
-                        subMenuName: "Profile",
-                        subMenuUrl: "/profile",
-                        subMenuIcon: "user",
-                      },
-                      {
-                        subMenuId: 202,
-                        subMenuName: "Preferences",
-                        subMenuUrl: "/settings",
-                        subMenuIcon: "sliders",
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          };
-        } else if (selectedRole === "coach") {
-          mockUser = {
-            userId: 2,
-            username: "coach_jane",
-            emailAddress: values.Username,
-            firstName: "Jane",
-            lastName: "Coachington",
-            roleName: "Lead Coach",
-            isSupervisor: true,
-            rolePermissions: [
-              {
-                roleId: 2,
-                roleName: "Coach",
-                menus: [
-                  {
-                    menuId: 1,
-                    menuName: "Coaching Panel",
-                    menuUrl: "/coach/dashboard",
-                    menuIcon: "layout-dashboard",
-                    subMenus: [
-                      {
-                        subMenuId: 101,
-                        subMenuName: "My Clients",
-                        subMenuUrl: "/coach/dashboard?tab=clients",
-                        subMenuIcon: "users",
-                      },
-                      {
-                        subMenuId: 102,
-                        subMenuName: "Schedules",
-                        subMenuUrl: "/coach/dashboard?tab=schedules",
-                        subMenuIcon: "calendar",
-                      },
-                      {
-                        subMenuId: 103,
-                        subMenuName: "Feedback Panel",
-                        subMenuUrl: "/coach/dashboard?tab=feedback",
-                        subMenuIcon: "message-square",
-                      },
-                    ],
-                  },
-                  {
-                    menuId: 2,
-                    menuName: "Settings",
-                    menuUrl: "/settings",
-                    menuIcon: "settings",
-                    subMenus: [
-                      {
-                        subMenuId: 201,
-                        subMenuName: "Profile",
-                        subMenuUrl: "/profile",
-                        subMenuIcon: "user",
-                      },
-                      {
-                        subMenuId: 202,
-                        subMenuName: "Preferences",
-                        subMenuUrl: "/settings",
-                        subMenuIcon: "sliders",
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          };
-        } else {
-          mockUser = {
-            userId: 3,
-            username: "client_mark",
-            emailAddress: values.Username,
-            firstName: "Mark",
-            lastName: "Coachee",
-            roleName: "Client Partner",
-            isSupervisor: false,
-            rolePermissions: [
-              {
-                roleId: 3,
-                roleName: "Client",
-                menus: [
-                  {
-                    menuId: 1,
-                    menuName: "My Hub",
-                    menuUrl: "/client/dashboard",
-                    menuIcon: "layout-dashboard",
-                    subMenus: [
-                      {
-                        subMenuId: 101,
-                        subMenuName: "My Goals",
-                        subMenuUrl: "/client/dashboard?tab=goals",
-                        subMenuIcon: "target",
-                      },
-                      {
-                        subMenuId: 102,
-                        subMenuName: "Book Session",
-                        subMenuUrl: "/client/dashboard?tab=book",
-                        subMenuIcon: "calendar",
-                      },
-                      {
-                        subMenuId: 103,
-                        subMenuName: "Resources",
-                        subMenuUrl: "/client/dashboard?tab=resources",
-                        subMenuIcon: "folder-open",
-                      },
-                    ],
-                  },
-                  {
-                    menuId: 2,
-                    menuName: "Settings",
-                    menuUrl: "/settings",
-                    menuIcon: "settings",
-                    subMenus: [
-                      {
-                        subMenuId: 201,
-                        subMenuName: "Profile",
-                        subMenuUrl: "/profile",
-                        subMenuIcon: "user",
-                      },
-                      {
-                        subMenuId: 202,
-                        subMenuName: "Preferences",
-                        subMenuUrl: "/settings",
-                        subMenuIcon: "sliders",
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          };
-        }
-
-        // Save auth details
-        const mockAccessToken =
-          "mock_access_token_jwt_" + Math.random().toString(36).substring(7);
-        nookies.set(null, "token", mockAccessToken, { path: "/" });
-        localStorage.setItem("accessToken", mockAccessToken);
-        localStorage.setItem("userData", JSON.stringify(mockUser));
-
-        toast.success(`Welcome back, ${mockUser.firstName}!`);
         router.replace("/");
       } catch (err: any) {
-        toast.error(err?.message || "Sign in failed");
+        toast.error(
+          err?.response?.data?.detail || "Invalid username or password",
+        );
       } finally {
         setLoading(false);
       }
     },
   });
 
-  // Quick fill helper
-  const handleQuickFill = (role: "admin" | "coach" | "client") => {
-    setSelectedRole(role);
-    formik.setValues({
-      Username: `${role}@growportal.com`,
-      password: "password123",
-    });
-  };
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 bg-cover bg-center bg-no-repeat relative backdrop:blur-sm"
@@ -301,7 +98,6 @@ const SignIn = () => {
 
         {/* Form */}
         <form onSubmit={formik.handleSubmit} className="space-y-5 sm:space-y-6">
-
           <div>
             <label className="block mb-2 sm:mb-3 font-semibold text-[#1f3f93] text-sm sm:text-base">
               Username
@@ -334,6 +130,7 @@ const SignIn = () => {
           </div>
 
           {/* Password */}
+          {/* Password */}
           <div>
             <div className="flex justify-between mb-2 sm:mb-3">
               <label className="font-semibold text-[#1f3f93] text-sm sm:text-base">
@@ -349,12 +146,14 @@ const SignIn = () => {
             </div>
 
             <div className="relative">
+              {/* Lock Icon */}
               <Lock className="absolute left-3 top-4 h-5 w-5 text-gray-400" />
 
+              {/* Input */}
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -362,7 +161,7 @@ const SignIn = () => {
                 className="
         w-full
         h-12 sm:h-14
-        pl-11 pr-4
+        pl-11 pr-12
         rounded-xl
         border
         border-blue-200
@@ -371,22 +170,21 @@ const SignIn = () => {
         focus:border-blue-400
       "
               />
+
+              {/* Eye Icon */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-4 text-gray-400"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
             </div>
           </div>
-
-          {/* Remember me */}
-          {/* <div className="flex items-center gap-2 sm:gap-3">
-            <input
-              type="checkbox"
-              className="w-4 h-4 sm:w-5 sm:h-5 rounded border-gray-300"
-            />
-
-            <span className="text-gray-500 text-sm sm:text-base">
-              Remember me
-            </span>
-          </div> */}
-
-          {/* Button */}
           <button
             type="submit"
             disabled={loading}
@@ -407,14 +205,6 @@ const SignIn = () => {
             Sign in
           </button>
         </form>
-
-        {/* Footer */}
-        <div className="mt-6 sm:mt-8 text-center text-gray-500 text-sm sm:text-base">
-          New here?{" "}
-          <Link href="/user-register" className="text-blue-600 font-semibold">
-            Create an account
-          </Link>
-        </div>
       </div>
     </div>
   );
