@@ -3,6 +3,9 @@ import { INavigationItem, IUser } from "@/utils/types"
 import { Link, useNavigate } from "react-router-dom"
 import { Bell, Menu, X } from "lucide-react"
 import { motion } from "framer-motion"
+import { useAuth } from "@/contexts/auth"
+
+import { formatPhotoUrl } from "@/utils/photoUtils"
 
 interface INavbarProps {
   user: IUser
@@ -14,7 +17,7 @@ interface INavbarProps {
 }
 
 const Navbar: React.FC<INavbarProps> = ({
-  user,
+  user: initialUser,
   username,
   siteName,
   userNavigation,
@@ -22,12 +25,17 @@ const Navbar: React.FC<INavbarProps> = ({
   isOpenMenu,
 }) => {
   const navigate = useNavigate()
+  const { user: authUser } = useAuth()
+  const user = authUser || initialUser
+
   const [notificationsCount, setNotificationsCount] = useState(3)
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [imgError, setImgError] = useState(false)
+
+  const photoUrl = formatPhotoUrl(user?.profilePhoto || user?.avatarUrl)
 
   useEffect(() => {
-    setAvatarUrl("/success-life.png")
-  }, [user])
+    setImgError(false)
+  }, [photoUrl])
 
   const handleNotificationClick = () => {
     navigate("/settings")
@@ -42,7 +50,6 @@ const Navbar: React.FC<INavbarProps> = ({
     >
       {/* Left */}
       <div className="flex items-center gap-4">
-
         <button
           className="btn btn-ghost btn-circle btn-sm text-gray-600"
           onClick={handleMenuStatus}
@@ -51,7 +58,6 @@ const Navbar: React.FC<INavbarProps> = ({
         </button>
 
         <Link to="/" className="flex items-center gap-2">
-
           {/* Logo */}
           <svg
             className="w-7 h-7 text-indigo-600"
@@ -73,7 +79,6 @@ const Navbar: React.FC<INavbarProps> = ({
 
       {/* Right */}
       <div className="flex items-center gap-4">
-
         {/* Notification */}
         <button
           onClick={handleNotificationClick}
@@ -90,15 +95,23 @@ const Navbar: React.FC<INavbarProps> = ({
 
         {/* Profile Dropdown */}
         <div className="dropdown dropdown-end">
-
           <div
             tabIndex={0}
             role="button"
             className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-gray-100 transition-colors"
           >
-            <div className="avatar">
-              <div className="w-8 h-8 rounded-full border border-indigo-200">
-                <img src={avatarUrl || ""} alt={user?.firstName} />
+            <div className="avatar relative">
+              <div className="w-8 h-8 rounded-full border border-indigo-200 overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-xs shadow-sm shrink-0">
+                {photoUrl && !imgError ? (
+                  <img
+                    src={photoUrl}
+                    alt={user?.firstName || "User"}
+                    className="w-full h-full object-cover"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <span>{user?.firstName?.[0]?.toUpperCase() || "U"}</span>
+                )}
               </div>
             </div>
 
@@ -109,24 +122,16 @@ const Navbar: React.FC<INavbarProps> = ({
 
           <ul
             tabIndex={0}
-            className="mt-2 p-2 shadow-xl menu dropdown-content bg-white border border-gray-200 rounded-2xl w-56 z-[1]"
+            className="mt-2 p-3.5 shadow-xl menu dropdown-content bg-white border border-gray-100 rounded-2xl w-52 z-[50]"
           >
-            {/* User Info */}
-            <div className="px-3 py-2 border-b border-gray-200">
-              <div className="text-sm font-bold text-black">
-                {user?.firstName} {user?.lastName}
-              </div>
-
-              <div className="text-xs text-gray-500 truncate">
-                {user?.emailAddress}
-              </div>
+            <div className="px-2.5 pb-2 text-[11px] font-bold tracking-wider text-sky-500 uppercase">
+              ACCOUNT CONTROLS
             </div>
 
-            {/* Links */}
-            <li className="mt-2">
+            <li>
               <Link
                 to="/profile"
-                className="rounded-xl py-2 px-3 text-sm font-medium hover:bg-indigo-50 text-gray-700"
+                className="rounded-lg py-2 px-2.5 text-sm font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 transition-colors"
               >
                 My Profile
               </Link>
@@ -135,20 +140,18 @@ const Navbar: React.FC<INavbarProps> = ({
             <li>
               <Link
                 to="/settings"
-                className="rounded-xl py-2 px-3 text-sm font-medium hover:bg-indigo-50 text-gray-700"
+                className="rounded-lg py-2 px-2.5 text-sm font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 transition-colors"
               >
                 Settings
               </Link>
             </li>
 
-            <hr className="my-2 border-gray-200" />
-
             <li>
               <Link
                 to="/logout"
-                className="rounded-xl py-2 px-3 text-sm font-semibold hover:bg-red-50 text-red-600"
+                className="rounded-lg py-2 px-2.5 text-sm font-medium text-slate-700 hover:bg-sky-50 hover:text-sky-600 transition-colors"
               >
-                Log Out
+                Logout
               </Link>
             </li>
           </ul>
@@ -159,3 +162,4 @@ const Navbar: React.FC<INavbarProps> = ({
 }
 
 export default Navbar
+

@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { ChevronDown, ChevronRight } from "lucide-react"
 
-import { extractMenusFromUser, IMenu, ISubMenu } from "@/utils/menuUtils"
+import { extractMenusFromUser, IMenu } from "@/utils/menuUtils"
 import { getIconComponent } from "@/utils/iconUtils"
-import { useAuth } from "@/contexts/auth"
+import SubMenu from "@/navigation/SubMenu"
+import { menuApi } from "@/api/menu"
 
 interface Props {
   user: any
@@ -12,6 +13,40 @@ interface Props {
   onSubMenuClick?: () => void
   setIsOpenMenu: (open: boolean) => void
 }
+
+const DEFAULT_FALLBACK_MENUS: IMenu[] = [
+  {
+    menuId: 1,
+    menuName: "Dashboard",
+    menuUrl: "/dashboard",
+    menuIcon: "LayoutDashboard",
+    subMenus: [],
+  },
+  {
+    menuId: 2,
+    menuName: "My Profile",
+    menuUrl: "/profile",
+    menuIcon: "User",
+    subMenus: [],
+  },
+  {
+    menuId: 3,
+    menuName: "Roles & Permissions",
+    menuUrl: "/roles",
+    menuIcon: "ShieldCheck",
+    subMenus: [
+      { subMenuId: 31, subMenuName: "Roles", subMenuUrl: "/roles" },
+      { subMenuId: 32, subMenuName: "Permissions", subMenuUrl: "/permissions" },
+    ],
+  },
+  {
+    menuId: 4,
+    menuName: "Settings",
+    menuUrl: "/settings",
+    menuIcon: "Settings",
+    subMenus: [],
+  },
+]
 
 const MergedSidebar: React.FC<Props> = ({
   user,
@@ -21,53 +56,114 @@ const MergedSidebar: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { logSubMenuClick } = useAuth()
+  const [fetchedMenus, setFetchedMenus] = useState<IMenu[]>([])
 
-  const menuData: IMenu[] = useMemo(
+  const userMenus: IMenu[] = useMemo(
     () => extractMenusFromUser(user),
     [user]
   )
 
-  const [expandedMenus, setExpandedMenus] = useState<Set<number>>(
-    new Set([1, 2, 3])
-  )
+  // Fetch menus from GET /menu/ if user rolePermissions are missing
+  useEffect(() => {
+    if (userMenus.length === 0) {
+      menuApi
+        .getAllMenus()
+        .then((data) => {
+          if (Array.isArray(data) && data.length > 0) {
+            const mappedMenus: IMenu[] = data.map((item, idx) => ({
+              menuId: item.menuId ?? idx + 1,
+              menuName: item.menuName || "",
+              menuUrl: item.menuUrl || "",
+              menuIcon: item.menuIcon,
+              subMenus: (item.subMenus || []).map((sub, sIdx) => ({
+                subMenuId: sub.subMenuId ?? sIdx + 1,
+                subMenuName: sub.subMenuName || "",
+                subMenuUrl: sub.subMenuUrl || "",
+                subMenuIcon: sub.subMenuIcon,
+              })),
+            }))
+            setFetchedMenus(mappedMenus)
+          }
+        })
+        .catch(() => {
+          // Silent catch if backend /menu/ is not active yet
+        })
+    }
+  }, [userMenus])
+
+  const menuData = userMenus.length > 0
+    ? userMenus
+    : fetchedMenus.length > 0
+    ? fetchedMenus
+    : DEFAULT_FALLBACK_MENUS
+
+  // Track expanded menu IDs dynamically instead of hardcoded [1, 2, 3]
+  const [expandedMenus, setExpandedMenus] = useState<Set<number>>(new Set())
+
+  // Automatically expand parent menu if current location matches any of its submenus
+  useEffect(() => {
+    if (!menuData || menuData.length === 0) return
+
+    const newlyExpanded = new Set(expandedMenus)
+    let updated = false
+
+    menuData.forEach((menu) => {
+      if (menu.subMenus && menu.subMenus.length > 0) {
+        const hasActiveSubMenu = menu.subMenus.some(
+          (sub) =>
+            location.pathname === sub.subMenuUrl ||
+            (sub.subMenuUrl !== "/" && location.pathname.startsWith(sub.subMenuUrl))
+        )
+        if (hasActiveSubMenu && !newlyExpanded.has(menu.menuId)) {
+          newlyExpanded.add(menu.menuId)
+          updated = true
+        }
+      }
+    })
+
+    if (updated) {
+      setExpandedMenus(newlyExpanded)
+    }
+  }, [location.pathname, menuData])
 
   const toggleMenu = (menuId: number) => {
     setExpandedMenus((prev) => {
       const next = new Set(prev)
-      next.has(menuId) ? next.delete(menuId) : next.add(menuId)
+      if (next.has(menuId)) {
+        next.delete(menuId)
+      } else {
+        next.add(menuId)
+      }
       return next
     })
   }
 
-  const handleSubMenuClick = (sub: ISubMenu) => {
-    logSubMenuClick(sub.subMenuUrl)
-    navigate(sub.subMenuUrl)
-    onSubMenuClick?.()
-  }
-
-  if (!menuData.length) return null
-
   return (
     <aside
-      className={`h-screen bg-white border-r border-gray-200 transition-all duration-300 ${
-        isOpenMenu ? "w-[260px]" : "w-14"
-      }`}
+      className={`h-screen bg-white border-r border-gray-200 transition-all duration-300 ${isOpenMenu ? "w-[260px]" : "w-14"
+        }`}
     >
       <nav className="p-2 space-y-1.5 overflow-y-auto h-full">
-
         {menuData.map((menu: IMenu) => {
           const subMenus = menu.subMenus || []
           const MenuIcon = getIconComponent(menu.menuIcon)
+          const isExpanded = expandedMenus.has(menu.menuId)
+
+          const isMainMenuActive =
+            !subMenus.length &&
+            (location.pathname === menu.menuUrl ||
+              (menu.menuUrl !== "/" && location.pathname.startsWith(menu.menuUrl)))
 
           return (
             <div key={menu.menuId} className="space-y-1">
-
-              {/* Main Menu */}
+              {/* Main Menu Button */}
               <button
                 onClick={() => {
                   if (!isOpenMenu) {
                     setIsOpenMenu(true)
+                    if (subMenus.length) {
+                      setExpandedMenus((prev) => new Set(prev).add(menu.menuId))
+                    }
                     return
                   }
 
@@ -77,58 +173,35 @@ const MergedSidebar: React.FC<Props> = ({
                     navigate(menu.menuUrl)
                   }
                 }}
-                className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-indigo-50 transition-all text-gray-700 font-semibold"
+                className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all font-semibold text-sm ${isMainMenuActive
+                    ? "bg-indigo-600 text-white shadow-md"
+                    : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                  }`}
               >
-                <div className="text-sm flex items-center gap-3 whitespace-nowrap overflow-hidden">
-                  <MenuIcon className="w-5 h-5 flex-shrink-0 text-indigo-600" />
-
-                  {isOpenMenu && (
-                    <span className="truncate">
-                      {menu.menuName}
-                    </span>
-                  )}
+                <div className="flex items-center gap-3 whitespace-nowrap overflow-hidden">
+                  <MenuIcon
+                    className={`w-5 h-5 flex-shrink-0 ${isMainMenuActive ? "text-white" : "text-indigo-600"
+                      }`}
+                  />
+                  {isOpenMenu && <span className="truncate">{menu.menuName}</span>}
                 </div>
 
                 {isOpenMenu && subMenus.length > 0 && (
-                  expandedMenus.has(menu.menuId) ? (
-                    <ChevronDown size={14} className="text-gray-400" />
+                  isExpanded ? (
+                    <ChevronDown size={14} className={isMainMenuActive ? "text-white" : "text-gray-400"} />
                   ) : (
-                    <ChevronRight size={14} className="text-gray-400" />
+                    <ChevronRight size={14} className={isMainMenuActive ? "text-white" : "text-gray-400"} />
                   )
                 )}
               </button>
 
-              {/* Sub Menu */}
-              {isOpenMenu && expandedMenus.has(menu.menuId) && (
-                <div className="pl-4 space-y-1">
-
-                  {menu.subMenus?.map((sub: ISubMenu) => {
-                    const SubIcon = getIconComponent(sub.subMenuIcon)
-
-                    const isActive =
-                      location.pathname + location.search === sub.subMenuUrl ||
-                      (sub.subMenuUrl !== "/" &&
-                        location.pathname.startsWith(sub.subMenuUrl))
-
-                    return (
-                      <button
-                        key={sub.subMenuId}
-                        onClick={() => handleSubMenuClick(sub)}
-                        className={`w-full text-xs flex items-center gap-2.5 p-2 rounded-xl transition-all ${
-                          isActive
-                            ? "bg-indigo-600 text-white font-bold shadow-md"
-                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                        }`}
-                      >
-                        <SubIcon className="w-4 h-4 flex-shrink-0" />
-
-                        <span className="truncate">
-                          {sub.subMenuName}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
+              {/* Sub Menu Component */}
+              {isOpenMenu && isExpanded && (
+                <SubMenu
+                  subMenus={subMenus}
+                  isOpenMenu={isOpenMenu}
+                  onSubMenuClick={onSubMenuClick}
+                />
               )}
             </div>
           )

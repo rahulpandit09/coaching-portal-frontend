@@ -1,23 +1,27 @@
 import { NextSeo } from "next-seo"
 import Head from "next/head"
 import { MetaData, AppConfig } from "@/utils/AppConfig"
-import { useRouter } from "next/router"
 
-interface IMetaProps {}
+interface IMetaProps {
+  title?: string
+  description?: string
+}
 
-const Meta: React.FC<IMetaProps> = () => {
-  const router = useRouter()
+const Meta: React.FC<IMetaProps> = ({ title, description }) => {
+  const pageTitle = title ? `${title} | ${MetaData.title}` : MetaData.title
+  const pageDesc = description || MetaData.description
+
   return (
     <>
       <Head>
         <link rel="icon" href="/coaching-faveicon.png" />
       </Head>
       <NextSeo
-        title={MetaData.title}
-        description={MetaData.description}
+        title={pageTitle}
+        description={pageDesc}
         openGraph={{
-          title: MetaData.title,
-          description: MetaData.description,
+          title: pageTitle,
+          description: pageDesc,
           site_name: AppConfig.siteName,
         }}
       />

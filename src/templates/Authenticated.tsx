@@ -10,7 +10,7 @@ interface IAuthenticatedProps {
   user: IUser
   username: string | null
   meta: React.ReactNode
-  children?: React.ReactNode   
+  children?: React.ReactNode
 }
 
 const NAVBAR_HEIGHT = 64
@@ -19,7 +19,7 @@ const Authenticated: React.FC<IAuthenticatedProps> = ({
   user,
   username,
   meta,
-  children, 
+  children,
 }) => {
   const [isOpen, setIsOpen] = useState(true)
   const handleClickMenu = () => setIsOpen(!isOpen)
@@ -36,7 +36,7 @@ const Authenticated: React.FC<IAuthenticatedProps> = ({
         >
           <Navbar
             user={user}
-            username={username} 
+            username={username}
             siteName={AppConfig.siteName}
             userNavigation={UserNavigation}
             handleMenuStatus={handleClickMenu}
@@ -48,8 +48,7 @@ const Authenticated: React.FC<IAuthenticatedProps> = ({
         <div className="flex w-full" style={{ paddingTop: NAVBAR_HEIGHT }}>
           {/* Sidebar */}
           <div
-            className={`bg-base-100 dark:bg-slate-950 z-40 fixed h-[calc(100vh-${NAVBAR_HEIGHT}px)] border-r border-base-300 dark:border-slate-850 transition-all duration-300 ${ 
-              isOpen ? "left-0 sm:left-0" : "-left-full sm:left-0" } `}
+            className={`bg-base-100 dark:bg-slate-950 z-40 fixed h-[calc(100vh-${NAVBAR_HEIGHT}px)] border-r border-base-300 dark:border-slate-850 transition-all duration-300 ${isOpen ? "left-0 sm:left-0" : "-left-full sm:left-0"} `}
           >
             <MergedSidebar
               user={user}
@@ -70,9 +69,8 @@ const Authenticated: React.FC<IAuthenticatedProps> = ({
 
           {/* Routes / Content */}
           <main
-            className={`flex-1 min-h-screen overflow-x-auto scrollbar-hide transition-all duration-300 ${
-              isOpen ? "sm:ml-[260px] ml-0" : "sm:ml-12 ml-0"
-            } p-6`}
+            className={`flex-1 min-h-screen overflow-x-auto scrollbar-hide transition-all duration-300 ${isOpen ? "sm:ml-[260px] ml-0" : "sm:ml-12 ml-0"
+              } p-6`}
           >
             <AppRouter isOpenMenu={isOpen} />
             {children}

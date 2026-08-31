@@ -5,7 +5,25 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { Lock, User, Eye, EyeOff } from "lucide-react";
-import { loginUser } from "../components/api/auth";
+import nookies from "nookies";
+import { useUserStore } from "@/store/user";
+import { loginUser } from "@/api/auth";
+
+const decodeJwt = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return {};
+  }
+};
 
 const SignIn = () => {
   const router = useRouter();
@@ -24,9 +42,77 @@ const SignIn = () => {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        await loginUser(values.Username, values.password);
+        const response = await loginUser(values.Username, values.password);
+        const { access_token, refresh_token } = response?.data || {};
+
+        if (access_token) {
+          // Save tokens to cookies (nookies) so AuthProvider recognizes user is logged in
+          nookies.set(null, "token", access_token, { path: "/", maxAge: 86400 });
+          if (refresh_token) {
+            nookies.set(null, "refreshToken", refresh_token, { path: "/", maxAge: 604800 });
+          }
+
+          // Save tokens to localStorage
+          localStorage.setItem("accessToken", access_token);
+          localStorage.setItem("token", access_token);
+          if (refresh_token) localStorage.setItem("refreshToken", refresh_token);
+        }
+
+        // Decode token to get real user_id and role_id from backend payload
+        const decoded: any = access_token ? decodeJwt(access_token) : {};
+        const roleId = decoded.role_id || 1;
+        const roleName = roleId === 3 ? "Client" : roleId === 2 ? "Coach" : "Admin";
+        const dashboardUrl = roleId === 3 ? "/client/dashboard" : roleId === 2 ? "/coach/dashboard" : "/admin/dashboard";
+
+        // Extract user info from backend response or token payload
+        const backendUser = response?.data?.user || response?.data?.user_data || {};
+        const userEmail =
+          backendUser.emailAddress ||
+          backendUser.email ||
+          decoded.email ||
+          decoded.email_address ||
+          (values.Username.includes("@") ? values.Username : undefined);
+
+        let derivedFirstName = backendUser.firstName || backendUser.first_name || decoded.first_name || decoded.firstName;
+        let derivedLastName = backendUser.lastName || backendUser.last_name || decoded.last_name || decoded.lastName;
+
+        if (!derivedFirstName && userEmail) {
+          const emailPrefix = userEmail.split("@")[0];
+          const cleanName = emailPrefix.split(/[\._\-0-9]/)[0];
+          if (cleanName && cleanName.length > 1) {
+            derivedFirstName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+          }
+        }
+
+        const decodedUserId =
+          decoded.user_id ||
+          decoded.id ||
+          decoded.userId ||
+          (decoded.sub && !isNaN(Number(decoded.sub)) ? Number(decoded.sub) : undefined);
+
+        // Build user object dynamically from API response & token payload
+        const userData = {
+          userId: backendUser.userId || backendUser.id || backendUser.user_id || decodedUserId || roleId || 3,
+          username: backendUser.username || decoded.username || values.Username,
+          emailAddress: userEmail,
+          firstName: derivedFirstName || roleName,
+          lastName: derivedLastName || (derivedFirstName ? "User" : "User"),
+          role: roleName,
+          roleName: roleName,
+          profilePhoto: backendUser.profilePhoto || backendUser.profile_photo || decoded.profile_photo || decoded.profilePhoto,
+          avatarUrl: backendUser.avatarUrl || backendUser.profilePhoto || backendUser.profile_photo || decoded.profile_photo,
+          isSupervisor: roleId === 1,
+          rolePermissions: response?.data?.user?.rolePermissions || response?.data?.rolePermissions || [],
+        };
+
+        localStorage.setItem("userData", JSON.stringify(userData));
+        useUserStore.getState().setUser(userData);
+        if (access_token && refresh_token) {
+          useUserStore.getState().login(access_token, refresh_token);
+        }
+
         toast.success("Login successfull!");
-        router.replace("/home");
+        router.replace("/");
       } catch (err: any) {
         toast.error(
           err?.response?.data?.detail || "Invalid username or password",
@@ -127,7 +213,7 @@ const SignIn = () => {
             </div>
           </div>
 
-          {/* Password */}
+
           {/* Password */}
           <div>
             <div className="flex justify-between mb-2 sm:mb-3">

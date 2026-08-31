@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Mail, ArrowLeft, Send } from "lucide-react";
-import { forgotPassword } from "@/api/authApi";
+import { forgotPassword } from "@/api/auth";
 
 
 const ForgotPassword = () => {

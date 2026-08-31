@@ -7,21 +7,18 @@ export default function Home() {
   if (!user) return <Navigate to="/signin" replace />
 
   const roleIds = permissions?.roleIds || []
+  const roleName = user.roleName || user.role
 
-  // Role mappings:
-  // Role ID 1: Admin
-  // Role ID 2: Coach
-  // Role ID 3: Client / Coachee
-  if (roleIds.includes(1)) {
+  // Check roleIds from permissions, or fall back to user role properties
+  if (roleIds.includes(1) || user.isSupervisor || roleName === "Admin" || user.roleId === 1) {
     return <Navigate to="/admin/dashboard" replace />
   }
-  if (roleIds.includes(2)) {
+  if (roleIds.includes(2) || roleName === "Coach" || user.roleId === 2) {
     return <Navigate to="/coach/dashboard" replace />
   }
-  if (roleIds.includes(3)) {
+  if (roleIds.includes(3) || roleName === "Client" || user.roleId === 3) {
     return <Navigate to="/client/dashboard" replace />
   }
 
-  // Fallback if role is not mapped
-  return <Navigate to="/profile" replace />
+  return <Navigate to="/dashboard" replace />
 }

@@ -34,10 +34,13 @@ export interface IRolePermission {
 export interface IUser {
   userId: number
   username: string
+  roleId?: number
   rolePermissions: IRolePermission[]
   emailAddress?: string
   role?: string
   roleName?: string
+  profilePhoto?: string
+  avatarUrl?: string
   isSupervisor: boolean
   firstName: string
   lastName: string

@@ -4,10 +4,13 @@ import { useAuth } from "@/contexts/auth";
 
 // Existing pages
 import Home from "./Home";
+import Dashboard from "../components/Dashbard/Dashboard";
 import NotFound from "./NotFound";
 import Profile from "./Profile";
 import Settings from "./Settings";
 import SignOut from "./SignOut";
+import Roles from "./Roles";
+import Permissions from "./Permissions";
 import SignIn from "@/pages/signin";
 import ForgotPassword from "@/pages/forgot-password";
 import VerifyOtp from "@/pages/verify-otp";
@@ -50,10 +53,22 @@ const AppRouter: React.FC<IAppRouterProps> = ({ isOpenMenu }) => {
         {/* Main App Routes */}
         <Route path="/" element={<Home />} />
 
+        <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/coach/dashboard" element={<Dashboard />} />
+        <Route path="/client/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/home" element={<Dashboard />} />
+
         <Route
           path="/profile"
           element={<Profile />}
         />
+
+        <Route path="/roles" element={<Roles />} />
+        <Route path="/admin/roles" element={<Roles />} />
+
+        <Route path="/permissions" element={<Permissions />} />
+        <Route path="/admin/permissions" element={<Permissions />} />
 
         <Route
           path="/settings"

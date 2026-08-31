@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
-import { verifyOtp } from "@/api/authApi";
+import { verifyOtp } from "@/api/auth";
 
 const VerifyOtp = () => {
   const router = useRouter();
