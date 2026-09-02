@@ -11,22 +11,36 @@ export function extractPermissions(rolePermissions: any[]): PermissionMap {
   const subMenus = new Set<string>()
   const roleSubMenuMap = new Map<number, Set<number>>()
 
-  rolePermissions.forEach(role => {
-    roleIds.push(role.roleId)
-    
+  if (!Array.isArray(rolePermissions)) {
+    return { roleIds, menus, subMenus, roleSubMenuMap }
+  }
+
+  rolePermissions.forEach((role: any) => {
+    const roleId = Number(role.roleId ?? role.role_id)
+    if (roleId) roleIds.push(roleId)
+
     const roleSubMenus = new Set<number>()
+    const menuList = role.menus || role.role_menus || []
 
-    role.menus?.forEach((menu: any) => {
-      menus.add(menu.menuUrl)
+    menuList.forEach((menu: any) => {
+      const menuUrl = menu.menuUrl || menu.menu_url
+      if (menuUrl) menus.add(menuUrl)
 
-      menu.subMenus?.forEach((subMenu: any) => {
-        subMenus.add(subMenu.subMenuUrl)
-        roleSubMenus.add(subMenu.subMenuId)
+      const subMenuList = menu.subMenus || menu.sub_menus || []
+      subMenuList.forEach((subMenu: any) => {
+        const subMenuUrl = subMenu.subMenuUrl || subMenu.sub_menu_url
+        const subMenuId = Number(subMenu.subMenuId ?? subMenu.sub_menu_id)
+
+        if (subMenuUrl) subMenus.add(subMenuUrl)
+        if (subMenuId) roleSubMenus.add(subMenuId)
       })
     })
 
-    roleSubMenuMap.set(role.roleId, roleSubMenus)
+    if (roleId) {
+      roleSubMenuMap.set(roleId, roleSubMenus)
+    }
   })
 
   return { roleIds, menus, subMenus, roleSubMenuMap }
 }
+

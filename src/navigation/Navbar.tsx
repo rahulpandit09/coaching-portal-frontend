@@ -3,6 +3,9 @@ import { INavigationItem, IUser } from "@/utils/types"
 import { Link, useNavigate } from "react-router-dom"
 import { Bell, Menu, X } from "lucide-react"
 import { motion } from "framer-motion"
+import { useAuth } from "@/contexts/auth"
+
+import { formatPhotoUrl } from "@/utils/photoUtils"
 
 interface INavbarProps {
   user: IUser
@@ -14,7 +17,7 @@ interface INavbarProps {
 }
 
 const Navbar: React.FC<INavbarProps> = ({
-  user,
+  user: initialUser,
   username,
   siteName,
   userNavigation,
@@ -22,12 +25,17 @@ const Navbar: React.FC<INavbarProps> = ({
   isOpenMenu,
 }) => {
   const navigate = useNavigate()
+  const { user: authUser } = useAuth()
+  const user = authUser || initialUser
+
   const [notificationsCount, setNotificationsCount] = useState(3)
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [imgError, setImgError] = useState(false)
+
+  const photoUrl = formatPhotoUrl(user?.profilePhoto || user?.avatarUrl)
 
   useEffect(() => {
-    setAvatarUrl("/success-life.png")
-  }, [user])
+    setImgError(false)
+  }, [photoUrl])
 
   const handleNotificationClick = () => {
     navigate("/settings")
@@ -38,51 +46,37 @@ const Navbar: React.FC<INavbarProps> = ({
       initial={{ y: -70, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className="w-full h-16 px-6 flex justify-between items-center bg-white border-b border-gray-200 shadow-sm"
+      className="fixed top-0 w-full z-50 h-16 px-6 flex justify-between items-center bg-[#FAF9F6] border-b border-blue-100 shadow-sm"
     >
       {/* Left */}
       <div className="flex items-center gap-4">
-
         <button
-          className="btn btn-ghost btn-circle btn-sm text-gray-600"
+          className="btn btn-square btn-xs bg-white border border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-600 transition duration-200"
           onClick={handleMenuStatus}
         >
           {isOpenMenu ? <X size={20} /> : <Menu size={20} />}
         </button>
 
-        <Link to="/" className="flex items-center gap-2">
-
-          {/* Logo */}
-          <svg
-            className="w-7 h-7 text-indigo-600"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-
-          <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-indigo-600 to-emerald-500 bg-clip-text text-transparent">
-            Coaching Portal
-          </span>
+        <Link to="/" className="flex items-center gap-3">
+          <img
+            src="/assets/navbar-logo.png"
+            className="h-9 sm:h-10 cursor-pointer hover:scale-102 transition"
+            alt={siteName || "Logo"}
+          />
         </Link>
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-4">
-
+      <div className="flex items-center gap-x-4">
         {/* Notification */}
         <button
           onClick={handleNotificationClick}
-          className="btn btn-ghost btn-circle btn-sm relative text-gray-500 hover:text-indigo-600"
+          className="flex items-center justify-center w-9 h-9 border border-blue-100 bg-white rounded-full hover:bg-blue-50/60 hover:border-blue-300 transition text-gray-600 relative group"
         >
-          <Bell size={24} />
+          <Bell className="w-5 h-5 text-blue-600/80 group-hover:text-blue-700 transition" />
 
           {notificationsCount > 0 && (
-            <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
+            <span className="absolute -top-1.5 -right-1.5 flex px-1.5 py-0.5 min-w-[20px] h-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white ring-2 ring-white shadow-sm transition-all duration-300">
               {notificationsCount}
             </span>
           )}
@@ -90,43 +84,43 @@ const Navbar: React.FC<INavbarProps> = ({
 
         {/* Profile Dropdown */}
         <div className="dropdown dropdown-end">
-
           <div
             tabIndex={0}
             role="button"
-            className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2.5 px-3 py-1.5 border border-blue-200/80 bg-blue-50/40 hover:bg-blue-50 hover:border-blue-300 rounded-full transition-all duration-200 select-none shadow-2xs"
           >
-            <div className="avatar">
-              <div className="w-8 h-8 rounded-full border border-indigo-200">
-                <img src={avatarUrl || ""} alt={user?.firstName} />
+            <div className="avatar relative">
+              <div className="w-7 h-7 rounded-full overflow-hidden border border-blue-200 bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs uppercase shadow-xs">
+                {photoUrl && !imgError ? (
+                  <img
+                    src={photoUrl}
+                    alt={user?.firstName || "User"}
+                    className="w-full h-full object-cover"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <span>{user?.firstName?.[0]?.toUpperCase() || "U"}</span>
+                )}
               </div>
             </div>
 
-            <span className="hidden sm:inline text-sm font-semibold text-gray-700">
+            <span className="hidden sm:inline text-blue-950 text-xs font-bold tracking-tight pr-0.5">
               {user?.firstName || "User"}
             </span>
           </div>
 
           <ul
             tabIndex={0}
-            className="mt-2 p-2 shadow-xl menu dropdown-content bg-white border border-gray-200 rounded-2xl w-56 z-[1]"
+            className="mt-2 p-2 bg-white shadow-xl menu menu-sm dropdown-content border border-blue-50 rounded-xl w-52 z-50 text-gray-700"
           >
-            {/* User Info */}
-            <div className="px-3 py-2 border-b border-gray-200">
-              <div className="text-sm font-bold text-black">
-                {user?.firstName} {user?.lastName}
-              </div>
+            <h3 className="font-bold mb-1 px-2.5 pt-1 text-[10px] text-blue-400 tracking-wider uppercase font-mono">
+              Account Controls
+            </h3>
 
-              <div className="text-xs text-gray-500 truncate">
-                {user?.emailAddress}
-              </div>
-            </div>
-
-            {/* Links */}
-            <li className="mt-2">
+            <li>
               <Link
                 to="/profile"
-                className="rounded-xl py-2 px-3 text-sm font-medium hover:bg-indigo-50 text-gray-700"
+                className="flex justify-between items-center hover:bg-blue-50 hover:text-blue-700 px-3 py-2 rounded-md transition text-gray-700 font-medium text-xs"
               >
                 My Profile
               </Link>
@@ -135,20 +129,18 @@ const Navbar: React.FC<INavbarProps> = ({
             <li>
               <Link
                 to="/settings"
-                className="rounded-xl py-2 px-3 text-sm font-medium hover:bg-indigo-50 text-gray-700"
+                className="flex justify-between items-center hover:bg-blue-50 hover:text-blue-700 px-3 py-2 rounded-md transition text-gray-700 font-medium text-xs"
               >
                 Settings
               </Link>
             </li>
 
-            <hr className="my-2 border-gray-200" />
-
             <li>
               <Link
                 to="/logout"
-                className="rounded-xl py-2 px-3 text-sm font-semibold hover:bg-red-50 text-red-600"
+                className="flex justify-between items-center hover:bg-blue-50 hover:text-blue-700 px-3 py-2 rounded-md transition text-gray-700 font-medium text-xs"
               >
-                Log Out
+                Logout
               </Link>
             </li>
           </ul>
@@ -159,3 +151,4 @@ const Navbar: React.FC<INavbarProps> = ({
 }
 
 export default Navbar
+
