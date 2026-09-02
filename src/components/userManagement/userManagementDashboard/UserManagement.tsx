@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Users } from "lucide-react";
 
 import UserDashboard from "./UserDashboard";
-import UserManagementTabs from "../UserManagementTabs/UserManagementTabs";
+import UserManagementTabs from "../UserManagementTabs/UserManagementCard&Tabs";
 
 import { IUser } from "@/utils/user.types";
 

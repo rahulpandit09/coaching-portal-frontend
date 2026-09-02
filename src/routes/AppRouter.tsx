@@ -23,7 +23,7 @@ import AccessWrapper from "@/routes/AccessWrapper";
 
 // User Management
 import UserManagement from "../components/userManagement/userManagementDashboard/UserManagement";
-import AddNewUserPage from "../components/userManagement/addNewUserModel/AddNewUser";
+import AddNewUserPage from "../components/userManagement/addNewUse/AddNewUser";
 
 interface IAppRouterProps {
   isOpenMenu: boolean;

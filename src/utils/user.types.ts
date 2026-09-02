@@ -49,6 +49,7 @@ export interface IAddUserForm {
   role: UserRole | "";
   password: string;
   confirmPassword: string;
+  aadhaarNumber?: string;
   uploadedDocuments?: File[];
 
   // Student fields

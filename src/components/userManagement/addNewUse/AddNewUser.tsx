@@ -3,11 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronDown, Plus, Users, FileText, Eye, Trash2 } from "lucide-react";
 import { IAddUserForm } from "@/utils/user.types";
 
-interface IUploadedFile {
-  id: string;
-  file: File;
-}
-
 const AddNewUserPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -20,6 +15,7 @@ const AddNewUserPage: React.FC = () => {
     role: "",
     password: "",
     confirmPassword: "",
+    aadhaarNumber: "",
 
     // Student fields
     dateOfBirth: "",
@@ -53,7 +49,7 @@ const AddNewUserPage: React.FC = () => {
     teachingSubjects: "",
   });
 
-  const [uploadedFiles, setUploadedFiles] = useState<IUploadedFile[]>([]);
+  const [aadhaarFile, setAadhaarFile] = useState<File | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -68,21 +64,34 @@ const AddNewUserPage: React.FC = () => {
     }));
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles: IUploadedFile[] = Array.from(e.target.files).map(
-        (file) => ({
-          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          file,
-        })
-      );
-      setUploadedFiles((prev) => [...prev, ...newFiles]);
-      e.target.value = "";
+  const handleAadhaarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = [
+      "application/pdf",
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert("Please upload a PDF, JPG, JPEG or PNG file.");
+      return;
     }
+
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+    if (file.size > maxSize) {
+      alert("Aadhaar file size must be less than 5 MB.");
+      return;
+    }
+
+    setAadhaarFile(file);
+    e.target.value = "";
   };
 
-  const handleRemoveFile = (id: string) => {
-    setUploadedFiles((prev) => prev.filter((item) => item.id !== id));
+  const handleRemoveAadhaar = () => {
+    setAadhaarFile(null);
   };
 
   const handleViewFile = (file: File) => {
@@ -105,7 +114,7 @@ const AddNewUserPage: React.FC = () => {
 
     const payload = {
       ...formData,
-      uploadedDocuments: uploadedFiles.map((item) => item.file),
+      aadhaarDocument: aadhaarFile,
     };
 
     // TODO: Call API to create user
@@ -755,89 +764,90 @@ const AddNewUserPage: React.FC = () => {
               )}
 
               {/* =====================================================
-                  DOCUMENT UPLOAD (DIRECT FILE UPLOAD, VIEW, DELETE)
+                  AADHAAR CARD DOCUMENT UPLOAD
               ====================================================== */}
-              <div className="mt-7 space-y-3">
-                {/* Upload Document Banner */}
-                <div className="flex flex-col gap-3 rounded-xl border border-blue-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h4 className="text-base font-semibold text-gray-800">
-                      Upload Document
-                    </h4>
-                    <p className="text-xs text-gray-500">
-                      Attach supporting documents
-                    </p>
+              <div className="mt-7">
+                <h3 className="mb-4 text-base font-semibold text-gray-800">
+                  Aadhaar Card <span className="text-red-500">*</span>
+                </h3>
+
+                <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    {/* Upload Aadhaar Card */}
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                        Upload Aadhaar Card
+                      </label>
+
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="file"
+                          id="aadhaar-upload"
+                          accept=".pdf,.png,.jpg,.jpeg"
+                          onChange={handleAadhaarUpload}
+                          className="hidden"
+                        />
+
+                        <label
+                          htmlFor="aadhaar-upload"
+                          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-orange-600"
+                        >
+                          <Plus size={16} />
+                          Choose File
+                        </label>
+{/* 
+                        {aadhaarFile && (
+                          <span className="max-w-[220px] truncate text-sm text-gray-600">
+                            {aadhaarFile.name}
+                          </span>
+                        )} */}
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <input
-                      type="file"
-                      id="upload-doc-input"
-                      multiple
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-                    />
-                    <label
-                      htmlFor="upload-doc-input"
-                      className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700"
-                    >
-                      <Plus size={16} />
-                      Add
-                    </label>
-                  </div>
-                </div>
-
-                {/* Uploaded Files List */}
-                {uploadedFiles.length > 0 && (
-                  <div className="space-y-2">
-                    {uploadedFiles.map((fileItem) => (
-                      <div
-                        key={fileItem.id}
-                        className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 transition"
-                      >
-                        {/* File Info */}
-                        <div className="flex items-center gap-3 overflow-hidden">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                            <FileText size={18} />
-                          </div>
-                          <div className="truncate">
-                            <p className="truncate text-sm font-medium text-gray-800">
-                              {fileItem.file.name}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              {(fileItem.file.size / (1024 * 1024)).toFixed(2)}{" "}
-                              MB
-                            </p>
-                          </div>
+                  {/* Uploaded Aadhaar Preview */}
+                  {aadhaarFile && (
+                    <div className="mt-5 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
+                          <FileText size={18} />
                         </div>
 
-                        {/* Actions: View & Delete */}
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => handleViewFile(fileItem.file)}
-                            className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50 transition"
-                            title="View document"
-                          >
-                            <Eye size={15} />
-                            View
-                          </button>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-gray-800">
+                            Aadhaar Card
+                          </p>
 
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveFile(fileItem.id)}
-                            className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 transition"
-                            title="Delete document"
-                          >
-                            <Trash2 size={15} />
-                            Delete
-                          </button>
+                          <p className="truncate text-xs text-gray-500">
+                            {aadhaarFile.name}
+                          </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
+
+                      <div className="flex shrink-0 items-center gap-2">
+                        {/* View */}
+                        <button
+                          type="button"
+                          onClick={() => handleViewFile(aadhaarFile)}
+                          className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-blue-600 transition hover:bg-blue-50"
+                        >
+                          <Eye size={15} />
+                          View
+                        </button>
+
+                        {/* Delete */}
+                        <button
+                          type="button"
+                          onClick={handleRemoveAadhaar}
+                          className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-xs font-medium text-red-500 transition hover:bg-red-50"
+                        >
+                          <Trash2 size={15} />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* =====================================================
