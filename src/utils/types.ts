@@ -44,6 +44,8 @@ export interface IUser {
   isSupervisor: boolean
   firstName: string
   lastName: string
+  contactNumber?: string
+  employeeNumber?: string
 }
 
 export interface ICoachingSession {

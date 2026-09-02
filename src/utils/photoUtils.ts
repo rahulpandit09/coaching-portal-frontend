@@ -22,6 +22,8 @@ export const formatPhotoUrl = (rawUrl: any): string | null => {
     urlStr = rawUrl
   } else if (typeof rawUrl === "object") {
     urlStr =
+      rawUrl.data?.profile_image ||
+      rawUrl.profile_image ||
       rawUrl.photo_url ||
       rawUrl.profilePhoto ||
       rawUrl.avatarUrl ||

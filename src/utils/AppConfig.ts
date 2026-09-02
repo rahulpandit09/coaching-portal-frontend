@@ -9,8 +9,8 @@ export const MetaData = {
 
 // Application Configuration
 export const AppConfig: IAppConfig = {
-  siteName: "GrowPortal",
-  logoPath: "/assets/images/logo.svg",
+  siteName: "Coaching Portal",
+  logoPath: "/assets/Logo-coaching-portal.png",
   imagePath: "/assets/images",
 }
 

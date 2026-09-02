@@ -4,7 +4,7 @@ import nookies from "nookies"
 import { useUserStore } from "../store/user"
 import { IUser } from "@/utils/types"
 import { extractPermissions, PermissionMap } from "@/utils/permissionUtils"
-import { verify } from "crypto"
+import { formatPhotoUrl } from "@/utils/photoUtils"
 
 interface AuthContextType {
   user: IUser | null
@@ -67,10 +67,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const roleId = userData.roleId || (userData.roleName === "Client" || userData.role === "Client" ? 3 : userData.roleName === "Coach" || userData.role === "Coach" ? 2 : 1)
 
+      const rawPhoto = userData.profilePhoto || userData.avatarUrl || (userData as any).profile_image
+      const photoUrl = rawPhoto ? formatPhotoUrl(rawPhoto) || undefined : undefined
+
       const needsEnrichment =
         email !== userData.emailAddress ||
         (firstName && firstName !== userData.firstName) ||
-        roleId !== userData.roleId
+        roleId !== userData.roleId ||
+        (photoUrl && photoUrl !== userData.profilePhoto)
 
       const enrichedUser: IUser = needsEnrichment
         ? {
@@ -78,6 +82,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             emailAddress: email,
             firstName: firstName || userData.firstName || "User",
             roleId: roleId,
+            profilePhoto: photoUrl || userData.profilePhoto,
+            avatarUrl: photoUrl || userData.avatarUrl,
           }
         : userData
 

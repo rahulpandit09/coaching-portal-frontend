@@ -28,7 +28,7 @@ const Authenticated: React.FC<IAuthenticatedProps> = ({
   return (
     <BrowserRouter>
       {meta}
-      <div className="flex flex-col min-h-screen w-full text-base-content bg-base-200 dark:bg-slate-900 transition-colors duration-200">
+      <div className="flex flex-col min-h-screen w-full text-base-content bg-white transition-colors duration-200">
         {/* Navbar */}
         <div
           className="fixed top-0 left-0 right-0 z-50 border-b border-base-300 dark:border-slate-800"

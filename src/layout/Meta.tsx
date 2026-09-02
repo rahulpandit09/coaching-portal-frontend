@@ -14,7 +14,7 @@ const Meta: React.FC<IMetaProps> = ({ title, description }) => {
   return (
     <>
       <Head>
-        <link rel="icon" href="/coaching-faveicon.png" />
+        <link rel="icon" href="/coaching-faveicon-badge.png" />
       </Head>
       <NextSeo
         title={pageTitle}

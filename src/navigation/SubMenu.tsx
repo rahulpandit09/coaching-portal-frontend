@@ -19,18 +19,21 @@ const SubMenu: React.FC<SubMenuProps> = ({
     const location = useLocation()
     const { logSubMenuClick } = useAuth()
 
-    if (!isOpenMenu || !subMenus || subMenus.length === 0) return null
+    if (!isOpenMenu || !subMenus || subMenus.length === 0) {
+        return null
+    }
 
     const handleSubMenuClick = (sub: ISubMenu) => {
         if (logSubMenuClick) {
             logSubMenuClick(sub.subMenuUrl)
         }
+
         navigate(sub.subMenuUrl)
         onSubMenuClick?.()
     }
 
     return (
-        <div className="pl-4 space-y-1 mt-1 transition-all duration-200">
+        <div className="space-y-1">
             {subMenus.map((sub: ISubMenu) => {
                 const SubIcon = getIconComponent(sub.subMenuIcon)
 
@@ -43,14 +46,19 @@ const SubMenu: React.FC<SubMenuProps> = ({
                 return (
                     <button
                         key={sub.subMenuId || sub.subMenuUrl}
+                        type="button"
                         onClick={() => handleSubMenuClick(sub)}
-                        className={`w-full text-xs flex items-center gap-2.5 p-2 rounded-xl transition-all ${isActive
-                                ? "bg-indigo-600 text-white font-bold shadow-md"
-                                : "text-gray-600 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400"
-                            }`}
+                        className={`text-sm ml-6 w-[230px] flex items-center gap-1 p-1 rounded hover:bg-gray-100 transition-colors ${
+                            isActive
+                                ? "bg-blue-100 text-blue-700 font-medium"
+                                : "text-gray-700"
+                        }`}
                     >
                         <SubIcon className="w-4 h-4 flex-shrink-0" />
-                        <span className="truncate">{sub.subMenuName}</span>
+
+                        <span className="truncate">
+                            {sub.subMenuName}
+                        </span>
                     </button>
                 )
             })}
