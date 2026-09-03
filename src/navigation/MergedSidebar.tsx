@@ -27,12 +27,12 @@ const MergedSidebar: React.FC<Props> = ({
 
   const userMenus: IMenu[] = useMemo(
     () => extractMenusFromUser(user),
-    [user]
+    [user?.rolePermissions, (user as any)?.menus]
   )
 
-  // Fetch menus dynamically from GET /menu/ endpoint if user rolePermissions are missing
+  // Fetch menus dynamically from GET /menu/ endpoint if user rolePermissions are missing and not yet fetched
   useEffect(() => {
-    if (userMenus.length === 0) {
+    if (userMenus.length === 0 && fetchedMenus.length === 0 && !loading) {
       setLoading(true)
       menuApi
         .getAllMenus()
@@ -64,7 +64,7 @@ const MergedSidebar: React.FC<Props> = ({
           setLoading(false)
         })
     }
-  }, [userMenus])
+  }, [userMenus, fetchedMenus.length, loading])
 
   const menuData: IMenu[] = userMenus.length > 0 ? userMenus : fetchedMenus
 
