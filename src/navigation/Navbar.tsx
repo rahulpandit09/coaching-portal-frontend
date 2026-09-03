@@ -59,7 +59,7 @@ const Navbar: React.FC<INavbarProps> = ({
 
         <Link to="/" className="flex items-center gap-3">
           <img
-            src="/assets/navbar-logo.png"
+            src="/assets/navbar-logo-2.png"
             className="h-9 sm:h-10 cursor-pointer hover:scale-102 transition"
             alt={siteName || "Logo"}
           />
