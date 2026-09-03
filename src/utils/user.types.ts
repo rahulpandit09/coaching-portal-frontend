@@ -44,6 +44,7 @@ export interface IAddUserForm {
   // Common fields
   firstName: string;
   lastName: string;
+  username?: string;
   email: string;
   phone: string;
   role: UserRole | "";

@@ -6,10 +6,15 @@ import { IAddUserForm } from "@/utils/user.types";
 const AddNewUserPage: React.FC = () => {
   const navigate = useNavigate();
 
+  const API_URL = "http://localhost:8000/user-management/users/";
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formData, setFormData] = useState<IAddUserForm>({
     // Common fields
     firstName: "",
     lastName: "",
+    username: "",
     email: "",
     phone: "",
     role: "",
@@ -99,7 +104,7 @@ const AddNewUserPage: React.FC = () => {
     window.open(fileUrl, "_blank");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.role) {
@@ -112,14 +117,108 @@ const AddNewUserPage: React.FC = () => {
       return;
     }
 
-    const payload = {
-      ...formData,
-      aadhaarDocument: aadhaarFile,
-    };
+    setIsSubmitting(true);
 
-    // TODO: Call API to create user
-    console.log("Create user:", payload);
-    navigate("/user-management");
+    try {
+      // Map role to role_id expected by backend (1 = Tutor, 2 = Teacher, 3 = Student, 4 = Parent)
+      const roleMap: Record<string, number> = {
+        Tutor: 1,
+        Teacher: 2,
+        Student: 3,
+        Parent: 4,
+      };
+      const roleId = roleMap[formData.role] || 3;
+
+      // Common User fields
+      const payload: any = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        username: formData.username || formData.email,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role_id: roleId,
+      };
+      // Student details
+      if (formData.role === "Student") {
+        payload.student_details = {
+          date_of_birth: formData.dateOfBirth,
+          gender: formData.gender,
+          student_id: formData.studentId,
+          school_name: formData.schoolName,
+          class_name: formData.className,
+          board: formData.board,
+          academic_year: formData.academicYear,
+          subjects: formData.subjects,
+          preferred_language: formData.preferredLanguage,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          country: formData.country,
+          pin_code: formData.pinCode,
+        };
+      }
+
+      // Teacher details
+      if (formData.role === "Teacher") {
+        payload.teacher_details = {
+          employee_id: formData.employeeId,
+          qualification: formData.qualification,
+          specialization: formData.specialization,
+          experience: formData.experience ? Number(formData.experience) : 0,
+          teaching_language: formData.teachingLanguage,
+          teaching_classes: formData.teachingClasses,
+          teaching_subjects: formData.teachingSubjects,
+        };
+      }
+
+      // Parent details
+      if (formData.role === "Parent") {
+        payload.parent_details = {
+          relationship: formData.relationship,
+          occupation: formData.occupation,
+          company_name: formData.companyName,
+          preferred_communication: formData.preferredCommunication,
+        };
+      }
+
+      console.log("Create User Payload:", payload);
+
+      // POST API call
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // Handle API errors
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        console.error("Create User API Error:", errorData);
+
+        const errorMessage =
+          errorData?.detail?.[0]?.msg ||
+          (typeof errorData?.detail === "string" ? errorData.detail : null) ||
+          errorData?.message ||
+          "Failed to create user.";
+
+        alert(errorMessage);
+        return;
+      }
+
+      // Success
+      const data = await response.json();
+      console.log("User created successfully:", data);
+
+      navigate("/user-management");
+    } catch (error) {
+      console.error("Create User Error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
@@ -795,7 +894,7 @@ const AddNewUserPage: React.FC = () => {
                           <Plus size={16} />
                           Choose File
                         </label>
-{/* 
+                        {/* 
                         {aadhaarFile && (
                           <span className="max-w-[220px] truncate text-sm text-gray-600">
                             {aadhaarFile.name}
@@ -909,9 +1008,10 @@ const AddNewUserPage: React.FC = () => {
 
             <button
               type="submit"
-              className="rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition duration-150 hover:from-orange-600 hover:to-orange-700"
+              disabled={isSubmitting}
+              className="rounded-lg bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition duration-150 hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create User
+              {isSubmitting ? "Creating User..." : "Create User"}
             </button>
           </div>
         </form>
