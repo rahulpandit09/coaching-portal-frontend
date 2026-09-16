@@ -11,19 +11,11 @@ import StudentsTab from "../UserManagementTabs/StudentsTab/StudentsTab";
 import TeachersTab from "../UserManagementTabs/TeachersTab/TeachersTab";
 import ParentsTab from "../UserManagementTabs/ParentsTab/ParentsTab";
 
+import { userManagementApi } from "@/api/userManagement";
+import { UserKpiData } from "@/api/type";
 import { IUser } from "@/utils/user.types";
 
 export type TabKey = "all" | "students" | "teachers" | "parents";
-
-interface UserKpi {
-  total_users: number;
-  students: number;
-  teachers: number;
-  parents: number;
-  total_students: number;
-  total_teachers: number;
-  total_parents: number;
-}
 
 interface UserManagementTabsProps {
   users: IUser[];
@@ -43,7 +35,7 @@ const UserManagementTabs: React.FC<UserManagementTabsProps> = ({
   const [activeTab, setActiveTab] = useState<TabKey>(defaultTab);
 
   // KPI state
-  const [kpi, setKpi] = useState<UserKpi | null>(null);
+  const [kpi, setKpi] = useState<UserKpiData | null>(null);
   const [kpiLoading, setKpiLoading] = useState(true);
   const [kpiError, setKpiError] = useState<string | null>(null);
 
@@ -54,28 +46,13 @@ const UserManagementTabs: React.FC<UserManagementTabsProps> = ({
         setKpiLoading(true);
         setKpiError(null);
 
-        const response = await fetch(
-          "http://localhost:8000/user-management/users/kpi",
-          {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch user KPI data");
-        }
-
-        const data: UserKpi = await response.json();
-
+        const data = await userManagementApi.getUserKpiCards();
         console.log("User KPI:", data);
 
         setKpi(data);
-      } catch (error) {
+      } catch (error: any) {
         console.error("KPI API Error:", error);
-        setKpiError("Unable to load KPI data");
+        setKpiError(error?.response?.data?.message || error?.message || "Unable to load KPI data");
       } finally {
         setKpiLoading(false);
       }
@@ -204,19 +181,17 @@ const UserManagementTabs: React.FC<UserManagementTabsProps> = ({
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`group flex items-center gap-2.5 border-b-2 px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                  isActive
+                className={`group flex items-center gap-2.5 border-b-2 px-4 py-3 text-sm font-semibold transition-all duration-200 ${isActive
                     ? `${tab.activeColor} border-b-2`
                     : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800"
-                }`}
+                  }`}
               >
                 <Icon
                   size={18}
-                  className={`transition-colors ${
-                    isActive
+                  className={`transition-colors ${isActive
                       ? "currentColor"
                       : "text-gray-400 group-hover:text-gray-600"
-                  }`}
+                    }`}
                 />
 
                 <span>{tab.label}</span>

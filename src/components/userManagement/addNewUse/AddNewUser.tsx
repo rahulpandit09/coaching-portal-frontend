@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, Plus, Users, FileText, Eye, Trash2 } from "lucide-react";
+import { userManagementApi } from "@/api/userManagement";
+import { CreateUserPayload } from "@/api/type";
 import { IAddUserForm } from "@/utils/user.types";
 
 const AddNewUserPage: React.FC = () => {
   const navigate = useNavigate();
-
-  const API_URL = "http://localhost:8000/user-management/users/";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -184,38 +184,22 @@ const AddNewUserPage: React.FC = () => {
 
       console.log("Create User Payload:", payload);
 
-      // POST API call
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      // Handle API errors
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        console.error("Create User API Error:", errorData);
-
-        const errorMessage =
-          errorData?.detail?.[0]?.msg ||
-          (typeof errorData?.detail === "string" ? errorData.detail : null) ||
-          errorData?.message ||
-          "Failed to create user.";
-
-        alert(errorMessage);
-        return;
-      }
-
-      // Success
-      const data = await response.json();
+      // Call API via userManagementApi
+      const data = await userManagementApi.createUser(payload);
       console.log("User created successfully:", data);
 
       navigate("/user-management");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Create User Error:", error);
+      const errorData = error?.response?.data;
+      const errorMessage =
+        errorData?.detail?.[0]?.msg ||
+        (typeof errorData?.detail === "string" ? errorData.detail : null) ||
+        errorData?.message ||
+        error?.message ||
+        "Failed to create user.";
+
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
