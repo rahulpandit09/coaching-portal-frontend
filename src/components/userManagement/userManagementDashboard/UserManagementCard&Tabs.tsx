@@ -11,9 +11,16 @@ import StudentsTab from "../UserManagementTabs/StudentsTab/StudentsTab";
 import TeachersTab from "../UserManagementTabs/TeachersTab/TeachersTab";
 import ParentsTab from "../UserManagementTabs/ParentsTab/ParentsTab";
 
-import { userManagementApi } from "@/api/userManagement";
-import { UserKpiData } from "@/api/type";
+import axiosInstance from "@/api/axiosInstance";
 import { IUser } from "@/utils/user.types";
+
+export interface UserKpiData {
+  total_users?: number;
+  students?: number;
+  teachers?: number;
+  parents?: number;
+  [key: string]: any;
+}
 
 export type TabKey = "all" | "students" | "teachers" | "parents";
 
@@ -46,7 +53,8 @@ const UserManagementTabs: React.FC<UserManagementTabsProps> = ({
         setKpiLoading(true);
         setKpiError(null);
 
-        const data = await userManagementApi.getUserKpiCards();
+        const response = await axiosInstance.get("/user-management/users/kpi");
+        const data = response.data;
         console.log("User KPI:", data);
 
         setKpi(data);
@@ -72,19 +80,19 @@ const UserManagementTabs: React.FC<UserManagementTabsProps> = ({
       key: "students" as TabKey,
       label: "Students",
       icon: GraduationCap,
-      activeColor: "border-blue-500 text-blue-600 bg-blue-50/50",
+      activeColor: "border-orange-500 text-orange-600 bg-orange-50/50",
     },
     {
       key: "teachers" as TabKey,
       label: "Teachers",
       icon: UserRoundCheck,
-      activeColor: "border-purple-500 text-purple-600 bg-purple-50/50",
+      activeColor: "border-orange-500 text-orange-600 bg-orange-50/50",
     },
     {
       key: "parents" as TabKey,
       label: "Parents",
       icon: UserRound,
-      activeColor: "border-amber-500 text-amber-600 bg-amber-50/50",
+      activeColor: "border-orange-500 text-orange-600 bg-orange-50/50",
     },
   ];
 
@@ -182,15 +190,15 @@ const UserManagementTabs: React.FC<UserManagementTabsProps> = ({
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={`group flex items-center gap-2.5 border-b-2 px-4 py-3 text-sm font-semibold transition-all duration-200 ${isActive
-                    ? `${tab.activeColor} border-b-2`
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800"
+                  ? `${tab.activeColor} border-b-2`
+                  : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800"
                   }`}
               >
                 <Icon
                   size={18}
                   className={`transition-colors ${isActive
-                      ? "currentColor"
-                      : "text-gray-400 group-hover:text-gray-600"
+                    ? "currentColor"
+                    : "text-gray-400 group-hover:text-gray-600"
                     }`}
                 />
 

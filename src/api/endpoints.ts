@@ -54,13 +54,6 @@ export const API_ENDPOINTS = {
     BY_ID: (id: string | number) => `/roles/${id}`,
     BY_NAME: (name: string) => `/roles/name/${name}`,
   },
-  USER_MANAGEMENT: {
-    BASE: "/user-management/users/",
-    KPI: "/user-management/users/kpi",
-    CREATE: "/user-management/users/",
-    USERS: "/user-management/users/",
-    BY_ID: (id: string | number) => `/user-management/users/${id}`,
-  },
 } as const
 
 export default API_ENDPOINTS

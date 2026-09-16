@@ -13,15 +13,6 @@ export {
 } from "./profile"
 export { rolesApi } from "./roles"
 export { permissionsApi } from "./permissions"
-export {
-  userManagementApi,
-  getUserKpiCards,
-  listUsers,
-  createUser,
-  getUserById,
-  updateUser,
-  deleteUser,
-} from "./userManagement"
 export * from "./type"
 
 

@@ -64,6 +64,10 @@ export interface AuthTokens {
   token_type?: string
   expires_in?: number
   user?: UserProfile | null
+  user_data?: any
+  data?: any
+  rolePermissions?: any[]
+  [key: string]: any
 }
 
 export interface UserProfile {

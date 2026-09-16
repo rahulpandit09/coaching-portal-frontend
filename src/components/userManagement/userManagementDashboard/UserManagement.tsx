@@ -3,24 +3,28 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Users, Loader2 } from "lucide-react";
 
 import UserManagementTabs from "./UserManagementCard&Tabs";
-import { userManagementApi } from "@/api/userManagement";
+import axiosInstance from "@/api/axiosInstance";
 import { IUser, UserRole } from "@/utils/user.types";
 
 const mapUserData = (user: any): IUser => {
   let role: UserRole = "Student";
 
-  switch (user.role_id) {
-    case 2:
-      role = "Teacher";
-      break;
-    case 3:
-      role = "Student";
-      break;
-    case 4:
-      role = "Parent";
-      break;
-    default:
-      role = "Student";
+  if (user.role) {
+    role = user.role;
+  } else {
+    switch (user.role_id) {
+      case 2:
+        role = "Teacher";
+        break;
+      case 3:
+        role = "Student";
+        break;
+      case 4:
+        role = "Parent";
+        break;
+      default:
+        role = "Student";
+    }
   }
 
   const studentDetails = user.student_details || {};
@@ -28,14 +32,29 @@ const mapUserData = (user: any): IUser => {
   const parentDetails = user.parent_details || {};
 
   return {
+    ...user,
     id: user.id,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    username: user.username,
+    email: user.email || "",
+    phone_number: user.phone_number || user.phone || null,
+    role_id: user.role_id,
+    role,
+    profile_image: user.profile_image,
+    aadhaar_card: user.aadhaar_card,
+    last_login: user.last_login,
+
+    student_details: user.student_details,
+    teacher_details: user.teacher_details,
+    parent_details: user.parent_details,
+
     name:
       `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
       user.username ||
+      user.name ||
       "User",
-    email: user.email || "",
-    phone: user.phone || "",
-    role,
+    phone: user.phone_number || user.phone || "",
     status: user.status || "Active",
 
     // Student fields
@@ -70,7 +89,10 @@ const UserManagement: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const data = await userManagementApi.listUsers({ skip: 0, limit: 100 });
+      const response = await axiosInstance.get("/user-management/users/", {
+        params: { skip: 0, limit: 100 },
+      });
+      const data = response.data;
       console.log("Users API response:", data);
 
       if (Array.isArray(data)) {
@@ -112,7 +134,7 @@ const UserManagement: React.FC = () => {
     }
 
     try {
-      await userManagementApi.deleteUser(user.id);
+      await axiosInstance.delete(`/user-management/users/${user.id}`);
       setUsers((prev) => prev.filter((item) => item.id !== user.id));
     } catch (err) {
       console.error("Delete user error:", err);

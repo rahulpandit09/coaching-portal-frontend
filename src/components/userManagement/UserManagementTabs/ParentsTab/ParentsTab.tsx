@@ -29,9 +29,9 @@ const ParentsTab: React.FC<ParentsTabProps> = ({
       const q = search.toLowerCase().trim();
       const matchesSearch =
         !q ||
-        parent.name.toLowerCase().includes(q) ||
-        parent.email.toLowerCase().includes(q) ||
-        parent.phone.toLowerCase().includes(q) ||
+        (parent.name || "").toLowerCase().includes(q) ||
+        (parent.email || "").toLowerCase().includes(q) ||
+        (parent.phone || "").toLowerCase().includes(q) ||
         (parent.studentName && parent.studentName.toLowerCase().includes(q)) ||
         (parent.occupation && parent.occupation.toLowerCase().includes(q));
 
@@ -51,7 +51,7 @@ const ParentsTab: React.FC<ParentsTabProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 -mt-3">
       {/* TABLE */}
       <ParentsTabTable
         parents={filteredParents}
