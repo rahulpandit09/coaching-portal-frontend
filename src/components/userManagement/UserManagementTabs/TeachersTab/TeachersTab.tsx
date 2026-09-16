@@ -28,9 +28,9 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
       const q = search.toLowerCase().trim();
       const matchesSearch =
         !q ||
-        teacher.name.toLowerCase().includes(q) ||
-        teacher.email.toLowerCase().includes(q) ||
-        teacher.phone.toLowerCase().includes(q) ||
+        (teacher.name || "").toLowerCase().includes(q) ||
+        (teacher.email || "").toLowerCase().includes(q) ||
+        (teacher.phone || "").toLowerCase().includes(q) ||
         (teacher.employeeId && teacher.employeeId.toLowerCase().includes(q)) ||
         (teacher.teachingSubjects &&
           teacher.teachingSubjects.toLowerCase().includes(q)) ||
@@ -46,7 +46,7 @@ const TeachersTab: React.FC<TeachersTabProps> = ({
 
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 -mt-3">
       {/* TABLE */}
       <TeachersTabTable
         teachers={filteredTeachers}

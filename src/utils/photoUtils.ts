@@ -6,7 +6,7 @@ export const getApiBaseUrl = (): string => {
   if (typeof window !== "undefined" && (window as any)._env_?.NEXT_PUBLIC_API_URL) {
     return (window as any)._env_.NEXT_PUBLIC_API_URL
   }
-  return process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 }
 
 /**

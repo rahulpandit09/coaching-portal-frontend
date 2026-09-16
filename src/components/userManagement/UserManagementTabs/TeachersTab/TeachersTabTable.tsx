@@ -1,5 +1,5 @@
 import React from "react";
-import { Eye, Pencil, Trash2, ArrowUpDown, UserRoundCheck } from "lucide-react";
+import { Eye, Pencil, Trash2, UserRoundCheck } from "lucide-react";
 import { IUser } from "@/utils/user.types";
 
 interface TeachersTabTableProps {
@@ -23,46 +23,25 @@ const TeachersTabTable: React.FC<TeachersTabTableProps> = ({
           <thead className="sticky top-0 z-10 bg-[#dce9f6] shadow-sm">
             <tr className="bg-[#dce9f6] text-xs font-semibold uppercase tracking-wider text-gray-700">
               <th className="border border-gray-300 px-4 py-3.5 text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <span>S.No</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>S.No</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5">
-                <div className="flex items-center gap-1">
-                  <span>Teacher</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Teacher</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5 text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <span>Emp ID</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Emp ID</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5">
-                <div className="flex items-center gap-1">
-                  <span>Qualification & Experience</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Qualification & Experience</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5">
-                <div className="flex items-center gap-1">
-                  <span>Subjects & Classes</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Subjects & Classes</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5">
-                <div className="flex items-center gap-1">
-                  <span>Contact (Email / Phone)</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Contact (Email / Phone)</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5 text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <span>Status</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Status</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5 text-center">
                 <span>Actions</span>
@@ -85,22 +64,12 @@ const TeachersTabTable: React.FC<TeachersTabTableProps> = ({
 
                   {/* Teacher Name */}
                   <td className="border border-gray-200 px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-bold text-purple-700 shadow-sm">
-                        {teacher.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .substring(0, 2)
-                          .toUpperCase()}
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        {teacher.name || "—"}
                       </div>
-                      <div>
-                        <div className="font-semibold text-gray-900">
-                          {teacher.name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {teacher.specialization || "Faculty"}
-                        </div>
+                      <div className="text-xs text-gray-500">
+                        {teacher.specialization || "Faculty"}
                       </div>
                     </div>
                   </td>

@@ -1,5 +1,5 @@
 import React from "react";
-import { Eye, Pencil, Trash2, ArrowUpDown, UserRound } from "lucide-react";
+import { Eye, Pencil, Trash2, UserRound } from "lucide-react";
 import { IUser } from "@/utils/user.types";
 
 interface ParentsTabTableProps {
@@ -23,46 +23,25 @@ const ParentsTabTable: React.FC<ParentsTabTableProps> = ({
           <thead className="sticky top-0 z-10 bg-[#dce9f6] shadow-sm">
             <tr className="bg-[#dce9f6] text-xs font-semibold uppercase tracking-wider text-gray-700">
               <th className="border border-gray-300 px-4 py-3.5 text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <span>S.No</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>S.No</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5">
-                <div className="flex items-center gap-1">
-                  <span>Parent / Guardian</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Parent / Guardian</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5">
-                <div className="flex items-center gap-1">
-                  <span>Student (Child)</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Student (Child)</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5 text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <span>Relationship</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Relationship</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5">
-                <div className="flex items-center gap-1">
-                  <span>Occupation & Org</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Occupation & Org</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5">
-                <div className="flex items-center gap-1">
-                  <span>Contact (Email / Phone)</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Contact (Email / Phone)</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5 text-center">
-                <div className="flex items-center justify-center gap-1">
-                  <span>Status</span>
-                  <ArrowUpDown size={12} className="text-gray-500" />
-                </div>
+                <span>Status</span>
               </th>
               <th className="border border-gray-300 px-4 py-3.5 text-center">
                 <span>Actions</span>
@@ -85,23 +64,13 @@ const ParentsTabTable: React.FC<ParentsTabTableProps> = ({
 
                   {/* Parent Name */}
                   <td className="border border-gray-200 px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-800 shadow-sm">
-                        {parent.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .substring(0, 2)
-                          .toUpperCase()}
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        {parent.name || "—"}
                       </div>
-                      <div>
-                        <div className="font-semibold text-gray-900">
-                          {parent.name}
-                        </div>
-                        <div className="text-xs text-gray-400">
-                          ID: #{parent.id.toString().padStart(4, "0")}
-                        </div>
-                      </div>
+                      {/* <div className="text-xs text-gray-400">
+                        ID: #{parent.id.toString().padStart(4, "0")}
+                      </div> */}
                     </div>
                   </td>
 

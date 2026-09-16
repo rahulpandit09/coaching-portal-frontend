@@ -2,13 +2,67 @@ export type UserRole = "Student" | "Teacher" | "Parent";
 
 export type UserStatus = "Active" | "Inactive";
 
+export interface StudentDetails {
+  date_of_birth?: string;
+  gender?: string;
+  student_id?: string;
+  school_name?: string;
+  class_name?: string;
+  board?: string;
+  academic_year?: string;
+  subjects?: string;
+  preferred_language?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pin_code?: string;
+  id?: number;
+  user_id?: number;
+}
+
+export interface TeacherDetails {
+  employee_id?: string;
+  qualification?: string;
+  specialization?: string;
+  experience?: number;
+  teaching_language?: string;
+  teaching_classes?: string;
+  teaching_subjects?: string;
+  id?: number;
+  user_id?: number;
+}
+
+export interface ParentDetails {
+  relationship?: string;
+  occupation?: string;
+  company_name?: string;
+  preferred_communication?: string;
+  id?: number;
+  user_id?: number;
+}
+
 export interface IUser {
   id: number;
-  name: string;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
   email: string;
-  phone: string;
-  role: UserRole;
-  status: UserStatus;
+  phone_number?: string | null;
+  role_id?: number;
+  role: UserRole | string;
+  profile_image?: string | null;
+  aadhaar_card?: string | null;
+  last_login?: string | null;
+
+  student_details?: StudentDetails | null;
+  teacher_details?: TeacherDetails | null;
+  parent_details?: ParentDetails | null;
+
+  // Legacy/flattened properties kept for compatibility
+  name?: string;
+  phone?: string;
+  status?: UserStatus;
 
   // Student specific fields
   studentId?: string;

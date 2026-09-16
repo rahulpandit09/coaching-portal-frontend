@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import { ChevronDown, Plus, Users, FileText, Eye, Trash2 } from "lucide-react";
-import { userManagementApi } from "@/api/userManagement";
-import { CreateUserPayload } from "@/api/type";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "@/api/axiosInstance";
 import { IAddUserForm } from "@/utils/user.types";
 
 const AddNewUserPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [generatedId, setGeneratedId] = useState<string>("");
+  const [isGeneratingId, setIsGeneratingId] = useState<boolean>(false);
 
   const [formData, setFormData] = useState<IAddUserForm>({
     // Common fields
@@ -55,6 +56,42 @@ const AddNewUserPage: React.FC = () => {
   });
 
   const [aadhaarFile, setAadhaarFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (formData.role === "Student") {
+      setIsGeneratingId(true);
+      axiosInstance
+        .post("/user-management/users/generate-student-id?student_code=CS")
+        .then((res) => {
+          const id = res.data.student_id || res.data.id || "";
+          setGeneratedId(id);
+        })
+        .catch((err) => {
+          console.error("Error fetching preview Student ID:", err);
+          setGeneratedId("");
+        })
+        .finally(() => {
+          setIsGeneratingId(false);
+        });
+    } else if (formData.role === "Teacher") {
+      setIsGeneratingId(true);
+      axiosInstance
+        .post("/user-management/users/generate-employee-id")
+        .then((res) => {
+          const id = res.data.employee_id || res.data.id || "";
+          setGeneratedId(id);
+        })
+        .catch((err) => {
+          console.error("Error fetching preview Employee ID:", err);
+          setGeneratedId("");
+        })
+        .finally(() => {
+          setIsGeneratingId(false);
+        });
+    } else {
+      setGeneratedId("");
+    }
+  }, [formData.role]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -127,7 +164,12 @@ const AddNewUserPage: React.FC = () => {
         Student: 3,
         Parent: 4,
       };
-      const roleId = roleMap[formData.role] || 3;
+      const roleId = roleMap[formData.role];
+
+      if (!roleId) {
+        alert("Invalid user role.");
+        return;
+      }
 
       // Common User fields
       const payload: any = {
@@ -135,16 +177,17 @@ const AddNewUserPage: React.FC = () => {
         last_name: formData.lastName,
         username: formData.username || formData.email,
         email: formData.email,
-        phone: formData.phone,
+        phone_number: formData.phone,
+        gender: formData.gender,
         password: formData.password,
         role_id: roleId,
       };
+
       // Student details
       if (formData.role === "Student") {
         payload.student_details = {
           date_of_birth: formData.dateOfBirth,
           gender: formData.gender,
-          student_id: formData.studentId,
           school_name: formData.schoolName,
           class_name: formData.className,
           board: formData.board,
@@ -162,7 +205,6 @@ const AddNewUserPage: React.FC = () => {
       // Teacher details
       if (formData.role === "Teacher") {
         payload.teacher_details = {
-          employee_id: formData.employeeId,
           qualification: formData.qualification,
           specialization: formData.specialization,
           experience: formData.experience ? Number(formData.experience) : 0,
@@ -184,8 +226,9 @@ const AddNewUserPage: React.FC = () => {
 
       console.log("Create User Payload:", payload);
 
-      // Call API via userManagementApi
-      const data = await userManagementApi.createUser(payload);
+      // Call User Creation API directly
+      const response = await axiosInstance.post("/user-management/users/", payload);
+      const data = response.data;
       console.log("User created successfully:", data);
 
       navigate("/user-management");
@@ -393,7 +436,7 @@ const AddNewUserPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Student ID */}
+                    {/* Student ID - Auto Generated Preview */}
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-gray-700">
                         Student ID
@@ -401,11 +444,13 @@ const AddNewUserPage: React.FC = () => {
 
                       <input
                         type="text"
-                        name="studentId"
-                        value={formData.studentId}
-                        onChange={handleChange}
-                        placeholder="Enter student ID"
-                        className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm outline-none transition focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                        value={
+                          isGeneratingId
+                            ? "Generating..."
+                            : generatedId || "Auto-generated"
+                        }
+                        disabled
+                        className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-3.5 py-2.5 text-sm font-semibold text-gray-700"
                       />
                     </div>
 
@@ -722,7 +767,7 @@ const AddNewUserPage: React.FC = () => {
                   </h3>
 
                   <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {/* Employee ID */}
+                    {/* Employee ID - Auto Generated Preview */}
                     <div>
                       <label className="mb-1.5 block text-sm font-medium text-gray-700">
                         Employee ID
@@ -730,12 +775,18 @@ const AddNewUserPage: React.FC = () => {
 
                       <input
                         type="text"
-                        name="employeeId"
-                        value={formData.employeeId}
-                        onChange={handleChange}
-                        placeholder="Enter employee ID"
-                        className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm outline-none transition focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                        value={
+                          isGeneratingId
+                            ? "Generating..."
+                            : generatedId || "Auto-generated"
+                        }
+                        disabled
+                        className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-3.5 py-2.5 text-sm font-semibold text-gray-700"
                       />
+
+                      <p className="mt-1 text-xs text-gray-400">
+                        Employee ID generated automatically.
+                      </p>
                     </div>
 
                     {/* Qualification */}
