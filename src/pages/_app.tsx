@@ -12,7 +12,14 @@ import Head from "next/head"
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
   const [render, setRender] = useState(false)
-  const PUBLIC_ROUTES = ["/signin", "/forgot-password", "/reset-password", "/user-register"]
+  const PUBLIC_ROUTES = [
+    "/signin",
+    "/forgot-password",
+    "/reset-password",
+    "/user-register",
+    "/verify-otp",
+    "/home",
+  ]
 
   useEffect(() => setRender(true), [])
 

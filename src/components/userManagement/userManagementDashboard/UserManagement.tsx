@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Users, Loader2 } from "lucide-react";
 
 import UserManagementTabs from "./UserManagementCard&Tabs";
-
+import { userManagementApi } from "@/api/userManagement";
 import { IUser, UserRole } from "@/utils/user.types";
 
 const mapUserData = (user: any): IUser => {
@@ -65,43 +65,32 @@ const UserManagement: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const response = await fetch(
-          "http://localhost:8000/user-management/users/?skip=0&limit=100",
-          {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-            },
-          }
-        );
+      const data = await userManagementApi.listUsers({ skip: 0, limit: 100 });
+      console.log("Users API response:", data);
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch users");
-        }
-
-        const data = await response.json();
-        console.log("Users API response:", data);
-
-        if (Array.isArray(data)) {
-          const mappedUsers: IUser[] = data.map(mapUserData);
-          setUsers(mappedUsers);
-        } else {
-          setUsers([]);
-        }
-      } catch (err) {
-        console.error("Get Users API Error:", err);
-        setError("Unable to load users");
-      } finally {
-        setLoading(false);
+      if (Array.isArray(data)) {
+        const mappedUsers: IUser[] = data.map(mapUserData);
+        setUsers(mappedUsers);
+      } else if (data && Array.isArray((data as any).users)) {
+        const mappedUsers: IUser[] = (data as any).users.map(mapUserData);
+        setUsers(mappedUsers);
+      } else {
+        setUsers([]);
       }
-    };
+    } catch (err: any) {
+      console.error("Get Users API Error:", err);
+      setError(err?.response?.data?.message || err?.message || "Unable to load users");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchUsers();
   }, []);
 
@@ -113,7 +102,7 @@ const UserManagement: React.FC = () => {
     console.log("Edit user:", user);
   };
 
-  const handleDeleteUser = (user: IUser) => {
+  const handleDeleteUser = async (user: IUser) => {
     const confirmed = window.confirm(
       `Are you sure you want to delete ${user.name}?`
     );
@@ -122,7 +111,14 @@ const UserManagement: React.FC = () => {
       return;
     }
 
-    setUsers((prev) => prev.filter((item) => item.id !== user.id));
+    try {
+      await userManagementApi.deleteUser(user.id);
+      setUsers((prev) => prev.filter((item) => item.id !== user.id));
+    } catch (err) {
+      console.error("Delete user error:", err);
+      // Fallback local update if backend soft-fails
+      setUsers((prev) => prev.filter((item) => item.id !== user.id));
+    }
   };
 
   return (

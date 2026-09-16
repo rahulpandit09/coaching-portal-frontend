@@ -1,10 +1,32 @@
 import axiosInstance from "./axiosInstance"
 import apiClient from "./client"
 import { API_ENDPOINTS } from "./endpoints"
-import { AuthTokens, LoginPayload, UserProfile } from "./type"
+import {
+  AuthTokens,
+  LoginPayload,
+  RegisterPayload,
+  ForgotPasswordPayload,
+  VerifyOtpPayload,
+  ResetPasswordPayload,
+  RefreshTokenPayload,
+  UserProfile,
+} from "./type"
 
 /**
- * Login user helper
+ * 1. Register User (POST /auth/register)
+ * Creates a new user account.
+ */
+export const registerUser = async (payload: RegisterPayload): Promise<UserProfile> => {
+  const response = await axiosInstance.post<UserProfile>(
+    API_ENDPOINTS.AUTH.REGISTER,
+    payload
+  )
+  return response.data
+}
+
+/**
+ * 2. Login User (POST /auth/login)
+ * Authenticates user and retrieves JWT access + refresh tokens.
  * @param username Username or email
  * @param password User password
  * @param useFormUrlEncoded Defaults to true for FastAPI OAuth2PasswordRequestForm
@@ -19,35 +41,91 @@ export const loginUser = async (
     if (username) params.append("username", username)
     if (password) params.append("password", password)
 
-    return axiosInstance.post(API_ENDPOINTS.AUTH.LOGIN, params, {
+    return axiosInstance.post<AuthTokens>(API_ENDPOINTS.AUTH.LOGIN, params, {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     })
   }
 
-  return axiosInstance.post(API_ENDPOINTS.AUTH.LOGIN, {
+  return axiosInstance.post<AuthTokens>(API_ENDPOINTS.AUTH.LOGIN, {
     username,
     password,
   })
 }
 
 /**
- * Forgot password helper
+ * 3. Forgot Password (POST /auth/forgot-password)
+ * Requests an OTP sent to the user's email.
  */
 export const forgotPassword = async (email: string) => {
   return axiosInstance.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email })
 }
 
 /**
- * Verify OTP helper
+ * 4. Verify OTP (POST /auth/verify-otp)
+ * Verifies the 6-digit OTP code sent for password reset.
  */
 export const verifyOtp = async (email: string, otp: string) => {
   return axiosInstance.post(API_ENDPOINTS.AUTH.VERIFY_OTP, { email, otp })
 }
 
+/**
+ * 5. Reset Password (POST /auth/reset-password)
+ * Resets user's password given email, new_password, and confirm_password.
+ */
+export const resetPassword = async (payload: ResetPasswordPayload) => {
+  return axiosInstance.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, payload)
+}
+
+/**
+ * 6. Logout User (POST /auth/logout)
+ * Invalidates the current user session on the backend.
+ */
+export const logoutUser = async (): Promise<void> => {
+  try {
+    await axiosInstance.post(API_ENDPOINTS.AUTH.LOGOUT)
+  } catch (error) {
+    // If token already expired or network fails, ignore so local cleanup proceeds
+    console.warn("Backend logout request completed with error:", error)
+  }
+}
+
+/**
+ * 7. Refresh Token (POST /auth/refresh)
+ * Obtains a new access token using a valid refresh token.
+ */
+export const refreshAuthToken = async (
+  refreshToken: string
+): Promise<AuthTokens> => {
+  const response = await axiosInstance.post<AuthTokens>(
+    API_ENDPOINTS.AUTH.REFRESH,
+    { refresh_token: refreshToken }
+  )
+  return response.data
+}
+
+/**
+ * Get Current User Profile (GET /auth/me)
+ */
+export const getMe = async (): Promise<UserProfile> => {
+  const response = await axiosInstance.get<UserProfile>(API_ENDPOINTS.AUTH.ME)
+  return response.data
+}
+
+/**
+ * Get All Users (GET /auth/get-all-users)
+ */
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+  const response = await axiosInstance.get<UserProfile[]>(
+    API_ENDPOINTS.AUTH.GET_ALL_USERS
+  )
+  return response.data
+}
+
+/**
+ * Unified authApi object
+ */
 export const authApi = {
-  /**
-   * Login user with credentials object to FastAPI backend
-   */
+  register: registerUser,
   login: async (
     credentials: LoginPayload,
     useFormUrlEncoded: boolean = true
@@ -68,28 +146,13 @@ export const authApi = {
 
     return apiClient.post<AuthTokens>(API_ENDPOINTS.AUTH.LOGIN, credentials)
   },
-
-  /**
-   * Register a new user
-   */
-  register: async (payload: any): Promise<UserProfile> => {
-    return apiClient.post<UserProfile>(API_ENDPOINTS.AUTH.REGISTER, payload)
-  },
-
-  /**
-   * Get current authenticated user profile
-   */
-  getProfile: async (): Promise<UserProfile> => {
-    return apiClient.get<UserProfile>(API_ENDPOINTS.AUTH.ME)
-  },
-
-  /**
-   * Logout user
-   */
-  logout: async (): Promise<void> => {
-    return apiClient.post<void>(API_ENDPOINTS.AUTH.LOGOUT)
-  },
+  forgotPassword,
+  verifyOtp,
+  resetPassword,
+  logout: logoutUser,
+  refresh: refreshAuthToken,
+  getProfile: getMe,
+  getAllUsers,
 }
 
 export default authApi
-

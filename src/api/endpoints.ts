@@ -7,14 +7,15 @@ export const API_ENDPOINTS = {
     REGISTER: "/auth/register",
     LOGOUT: "/auth/logout",
     REFRESH: "/auth/refresh",
-    ME: "/users/me",
+    ME: "/auth/me",
     FORGOT_PASSWORD: "/auth/forgot-password",
     RESET_PASSWORD: "/auth/reset-password",
     VERIFY_OTP: "/auth/verify-otp",
+    GET_ALL_USERS: "/auth/get-all-users",
   },
   USERS: {
     BASE: "/users",
-    PROFILE: "/users/me",
+    PROFILE: "/auth/me",
     ALL: "/auth/get-all-users",
     BY_ID: (id: string | number) => `/users/${id}`,
   },
@@ -52,6 +53,13 @@ export const API_ENDPOINTS = {
     BASE: "/roles/",
     BY_ID: (id: string | number) => `/roles/${id}`,
     BY_NAME: (name: string) => `/roles/name/${name}`,
+  },
+  USER_MANAGEMENT: {
+    BASE: "/user-management/users/",
+    KPI: "/user-management/users/kpi",
+    CREATE: "/user-management/users/",
+    USERS: "/user-management/users/",
+    BY_ID: (id: string | number) => `/user-management/users/${id}`,
   },
 } as const
 
