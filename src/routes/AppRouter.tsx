@@ -97,12 +97,20 @@ const AppRouter: React.FC<IAppRouterProps> = ({ isOpenMenu }) => {
 
         <Route
           path="/roles"
-          element={<Roles />}
+          element={
+            <AccessWrapper requireMenu="/roles" allowRoles={[1]}>
+              <Roles />
+            </AccessWrapper>
+          }
         />
 
         <Route
           path="/admin/roles"
-          element={<Roles />}
+          element={
+            <AccessWrapper requireMenu="/roles" allowRoles={[1]}>
+              <Roles />
+            </AccessWrapper>
+          }
         />
 
         {/* =========================
@@ -111,12 +119,20 @@ const AppRouter: React.FC<IAppRouterProps> = ({ isOpenMenu }) => {
 
         <Route
           path="/permissions"
-          element={<Permissions />}
+          element={
+            <AccessWrapper requireMenu="/permissions" allowRoles={[1]}>
+              <Permissions />
+            </AccessWrapper>
+          }
         />
 
         <Route
           path="/admin/permissions"
-          element={<Permissions />}
+          element={
+            <AccessWrapper requireMenu="/permissions" allowRoles={[1]}>
+              <Permissions />
+            </AccessWrapper>
+          }
         />
 
         {/* =========================
@@ -131,15 +147,28 @@ const AppRouter: React.FC<IAppRouterProps> = ({ isOpenMenu }) => {
         <Route
           path="/user-management/manage-user"
           element={
-            // <AccessWrapper requireSubMenu="/user-management/manage-user">
-            <UserManagement />
-            // </AccessWrapper> 
+            <AccessWrapper requireSubMenu="/user-management/manage-user">
+              <UserManagement />
+            </AccessWrapper>
           }
         />
 
         <Route
           path="/user-management/add-new-user"
-          element={<AddNewUserPage />}
+          element={
+            <AccessWrapper requireSubMenu="/user-management/manage-user">
+              <AddNewUserPage />
+            </AccessWrapper>
+          }
+        />
+
+        <Route
+          path="/user-management/roles-permissions"
+          element={
+            <AccessWrapper requireSubMenu="/user-management/roles-permissions">
+              <Roles />
+            </AccessWrapper>
+          }
         />
 
 

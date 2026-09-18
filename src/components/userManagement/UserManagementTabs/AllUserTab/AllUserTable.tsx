@@ -58,7 +58,8 @@ const AllUserTable: React.FC<AllUserTableProps> = ({
       return user.teacher_details?.employee_id || user.employeeId || "—"
     }
 
-    return `#${user.id.toString().padStart(4, "0")}`
+    const idVal = user.id ?? (user as any).user_id ?? (user as any).userId
+    return idVal !== undefined && idVal !== null ? `#${idVal.toString().padStart(4, "0")}` : "—"
   }
 
   const getClassBoard = (user: IUser) => {

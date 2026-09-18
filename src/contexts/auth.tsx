@@ -5,6 +5,7 @@ import { useUserStore } from "../store/user"
 import { IUser } from "@/utils/types"
 import { extractPermissions, PermissionMap } from "@/utils/permissionUtils"
 import { formatPhotoUrl } from "@/utils/photoUtils"
+import { menuApi } from "@/api/menu"
 
 interface AuthContextType {
   user: IUser | null
@@ -100,11 +101,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(enrichedUser)
-      if (needsEnrichment || !storeUser) {
-        setUserStore(enrichedUser)
+      const userPermissionsSource =
+        enrichedUser.rolePermissions?.length
+          ? enrichedUser.rolePermissions
+          : Array.isArray((enrichedUser as any).menus) && (enrichedUser as any).menus.length
+          ? [{ roleId: enrichedUser.roleId || 1, menus: (enrichedUser as any).menus }]
+          : []
+
+      if (userPermissionsSource.length > 0) {
+        setPermissions(extractPermissions(userPermissionsSource))
+        setLoading(false)
+      } else {
+        // Fetch menus dynamically if user object doesn't have rolePermissions attached
+        menuApi
+          .getAllMenus()
+          .then((res: any) => {
+            const rawData = Array.isArray(res) ? res : res?.data || []
+            if (Array.isArray(rawData) && rawData.length > 0) {
+              setPermissions(
+                extractPermissions([{ roleId: enrichedUser.roleId || 1, menus: rawData }])
+              )
+            } else {
+              setPermissions(extractPermissions([]))
+            }
+          })
+          .catch((err) => {
+            console.error("Failed to load menus in auth context:", err)
+            setPermissions(extractPermissions([]))
+          })
+          .finally(() => {
+            setLoading(false)
+          })
       }
-      setPermissions(extractPermissions(enrichedUser.rolePermissions || []))
-      setLoading(false)
     }
 
     if (storeUser) {
@@ -124,11 +152,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const roleIds = permissions?.roleIds || []
 
-  const hasRole = (roleId: number) => roleIds.includes(roleId)
+  const isAdmin = user?.roleId === 1 || user?.role === "Admin" || user?.roleName === "Admin" || user?.isSupervisor === true
 
-  const hasMenu = (menuUrl: string) => permissions?.menus.has(menuUrl) ?? false
+  const hasRole = (roleId: number) => {
+    if (isAdmin) return true
+    return roleIds.includes(roleId)
+  }
 
-  const hasSubMenu = (subMenuUrl: string) => permissions?.subMenus.has(subMenuUrl) ?? false
+  const hasMenu = (menuUrl: string) => {
+    if (isAdmin) return true
+    return permissions?.menus.has(menuUrl) ?? false
+  }
+
+  const hasSubMenu = (subMenuUrl: string) => {
+    if (isAdmin) return true
+    return permissions?.subMenus.has(subMenuUrl) ?? false
+  }
 
   const hasRoleAccess = (roleId: number, subMenuId: number) => permissions?.roleSubMenuMap.get(roleId)?.has(subMenuId) ?? false
 
@@ -141,9 +180,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return roles
   }
 
-  const logSubMenuClick = (subMenuUrl: string) => {
-    console.log("📌 SubMenu Clicked:", subMenuUrl)
-    console.log("👤 User:", `${user?.firstName} ${user?.lastName}`)
+  const logSubMenuClick = (_subMenuUrl: string) => {
+    // SubMenu click handler
   }
 
   const updateUser = (updatedUser: IUser) => {

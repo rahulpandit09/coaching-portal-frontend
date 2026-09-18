@@ -26,8 +26,7 @@ const ForgotPassword = () => {
     onSubmit: async (values) => {
       setLoading(true);
       try {
-        const response = await forgotPassword(values.email);
-        console.log(response);
+        await forgotPassword(values.email);
         toast.success(
           "OTP sent successfully! Please check your email for the reset link.",
         );

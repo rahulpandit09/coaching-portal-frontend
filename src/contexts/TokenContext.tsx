@@ -57,7 +57,6 @@ export const TokenProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         longitude: number
     ) => {
         try {
-            console.log("🔑 Fetching digital token...");
             // Mock API or actual backend lookup
             const mockToken = "mock_digital_token_" + Math.random().toString(36).substring(7);
             setDigitalToken(mockToken, new Date(Date.now() + 3600 * 1000).toISOString());

@@ -55,8 +55,6 @@ const UserManagementTabs: React.FC<UserManagementTabsProps> = ({
 
         const response = await axiosInstance.get("/user-management/users/kpi");
         const data = response.data;
-        console.log("User KPI:", data);
-
         setKpi(data);
       } catch (error: any) {
         console.error("KPI API Error:", error);
