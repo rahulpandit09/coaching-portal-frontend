@@ -1,6 +1,13 @@
-import React from "react"
+import React, { useEffect } from "react"
+import { useLocation } from "react-router-dom"
 
 const NotFound: React.FC = () => {
+  const location = useLocation()
+
+  useEffect(() => {
+    console.error("🔍 [NotFound] 404 hit for current route:", location.pathname)
+  }, [location.pathname])
+
   return (
     <div className="flex flex-col items-center justify-center pt-24 md:pt-48">
       <div className="flex items-center gap-4">

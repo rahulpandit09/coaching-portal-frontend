@@ -33,7 +33,7 @@ const mapUserData = (user: any): IUser => {
 
   return {
     ...user,
-    id: user.id,
+    id: user.id ?? user.user_id ?? user.userId ?? 0,
     first_name: user.first_name,
     last_name: user.last_name,
     username: user.username,
@@ -93,7 +93,6 @@ const UserManagement: React.FC = () => {
         params: { skip: 0, limit: 100 },
       });
       const data = response.data;
-      console.log("Users API response:", data);
 
       if (Array.isArray(data)) {
         const mappedUsers: IUser[] = data.map(mapUserData);
@@ -116,12 +115,12 @@ const UserManagement: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const handleViewUser = (user: IUser) => {
-    console.log("View user:", user);
+  const handleViewUser = (_user: IUser) => {
+    // View user action
   };
 
-  const handleEditUser = (user: IUser) => {
-    console.log("Edit user:", user);
+  const handleEditUser = (_user: IUser) => {
+    // Edit user action
   };
 
   const handleDeleteUser = async (user: IUser) => {

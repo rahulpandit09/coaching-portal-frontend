@@ -28,36 +28,36 @@ function MyApp({ Component, pageProps }: AppProps) {
   const isPublicRoute = PUBLIC_ROUTES.includes(router.pathname)
 
   return (
-    <>
-      <RefreshProvider>
-        <TokenProvider>
-          <Head>
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <link rel="icon" href="/coaching-faveicon-badge.png" />
-          </Head>
-          <div className="min-h-screen h-full bg-base-200 dark:bg-slate-900 transition-colors duration-200">
-            {!isPublicRoute ? (
-              <AuthProvider>
-                <Component {...pageProps} />
-              </AuthProvider>
-            ) : (
+
+    <RefreshProvider>
+      <TokenProvider>
+        <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="icon" href="/coaching-faveicon-badge.png" />
+        </Head>
+        <div className="min-h-screen h-full bg-base-200 dark:bg-slate-900 transition-colors duration-200">
+          {!isPublicRoute ? (
+            <AuthProvider>
               <Component {...pageProps} />
-            )}
-            <ToastContainer
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-            />
-          </div>
-        </TokenProvider>
-      </RefreshProvider>
-    </>
+            </AuthProvider>
+          ) : (
+            <Component {...pageProps} />
+          )}
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+        </div>
+      </TokenProvider>
+    </RefreshProvider>
+
   )
 }
 

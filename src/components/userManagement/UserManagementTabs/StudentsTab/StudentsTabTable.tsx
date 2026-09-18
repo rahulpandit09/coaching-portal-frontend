@@ -75,7 +75,7 @@ const StudentsTabTable: React.FC<StudentsTabTableProps> = ({
 
                   {/* Student ID */}
                   <td className="border border-gray-200 px-4 py-3 text-center font-mono text-xs font-semibold text-blue-600">
-                    {student.studentId || `STU-${student.id.toString().padStart(4, "0")}`}
+                    {student.studentId || (student.id != null ? `STU-${student.id.toString().padStart(4, "0")}` : "—")}
                   </td>
 
                   {/* Class & Board */}

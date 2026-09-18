@@ -40,17 +40,17 @@ const MergedSidebar: React.FC<Props> = ({
           const rawData = Array.isArray(res) ? res : res?.data || []
           if (Array.isArray(rawData)) {
             const mappedMenus: IMenu[] = rawData.map((item: any, idx: number) => {
-              const rawSubMenus = item.subMenus || item.sub_menus || item.submenu || []
+              const rawSubMenus = item.submenu || item.subMenus || item.sub_menus || []
               return {
                 menuId: Number(item.menuId ?? item.menu_id ?? item.id ?? idx + 1),
-                menuName: item.menuName || item.menu_name || item.title || item.name || "",
-                menuUrl: item.menuUrl || item.menu_url || item.path || item.url || "",
-                menuIcon: item.menuIcon || item.menu_icon || item.icon,
+                menuName: item.title || item.menuName || item.menu_name || item.name || "",
+                menuUrl: item.path || item.menuUrl || item.menu_url || item.url || "",
+                menuIcon: item.icon || item.menuIcon || item.menu_icon,
                 subMenus: rawSubMenus.map((sub: any, sIdx: number) => ({
                   subMenuId: Number(sub.subMenuId ?? sub.sub_menu_id ?? sub.id ?? sIdx + 1),
-                  subMenuName: sub.subMenuName || sub.sub_menu_name || sub.title || sub.name || "",
-                  subMenuUrl: sub.subMenuUrl || sub.sub_menu_url || sub.path || sub.url || "",
-                  subMenuIcon: sub.subMenuIcon || sub.sub_menu_icon || sub.icon,
+                  subMenuName: sub.title || sub.subMenuName || sub.sub_menu_name || sub.name || "",
+                  subMenuUrl: sub.path || sub.subMenuUrl || sub.sub_menu_url || sub.url || "",
+                  subMenuIcon: sub.icon || sub.subMenuIcon || sub.sub_menu_icon,
                 })),
               }
             })

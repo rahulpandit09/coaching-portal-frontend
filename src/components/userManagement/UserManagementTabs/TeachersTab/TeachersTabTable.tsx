@@ -76,7 +76,7 @@ const TeachersTabTable: React.FC<TeachersTabTableProps> = ({
 
                   {/* Emp ID */}
                   <td className="border border-gray-200 px-4 py-3 text-center font-mono text-xs font-semibold text-purple-700">
-                    {teacher.employeeId || `EMP-${teacher.id.toString().padStart(4, "0")}`}
+                    {teacher.employeeId || (teacher.id != null ? `EMP-${teacher.id.toString().padStart(4, "0")}` : "—")}
                   </td>
 
                   {/* Qualification & Experience */}

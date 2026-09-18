@@ -38,7 +38,7 @@ const AllUserTab: React.FC<AllUserTabProps> = ({
         user.email?.toLowerCase().includes(q) ||
         user.phone_number?.toLowerCase().includes(q) ||
         user.phone?.toLowerCase().includes(q) ||
-        user.id.toString().includes(q) ||
+        (user.id != null && user.id.toString().includes(q)) ||
         studentDetails?.student_id?.toLowerCase().includes(q) ||
         studentDetails?.class_name?.toLowerCase().includes(q) ||
         studentDetails?.board?.toLowerCase().includes(q) ||

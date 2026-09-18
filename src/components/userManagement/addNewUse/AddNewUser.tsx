@@ -224,12 +224,8 @@ const AddNewUserPage: React.FC = () => {
         };
       }
 
-      console.log("Create User Payload:", payload);
-
       // Call User Creation API directly
-      const response = await axiosInstance.post("/user-management/users/", payload);
-      const data = response.data;
-      console.log("User created successfully:", data);
+      await axiosInstance.post("/user-management/users/", payload);
 
       navigate("/user-management");
     } catch (error: any) {
@@ -987,11 +983,11 @@ const AddNewUserPage: React.FC = () => {
               {/* =====================================================
                   COMMON ACCOUNT INFORMATION (3-COLUMN STRUCTURE)
               ====================================================== */}
-              <h3 className="mb-4 mt-7 text-base font-semibold text-gray-800">
+              {/* <h3 className="mb-4 mt-7 text-base font-semibold text-gray-800">
                 Account Information
-              </h3>
+              </h3> */}
 
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
                 {/* Password */}
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">

@@ -100,18 +100,30 @@ export interface UserProfile {
  */
 export interface ApiSubmenu {
   subMenuId?: number
-  subMenuName: string
-  subMenuUrl: string
-  subMenuIcon?: string
   menuId?: number
+  title?: string
+  subMenuName?: string
+  path?: string
+  subMenuUrl?: string
+  icon?: string
+  subMenuIcon?: string
+  orderIndex?: number
+  status?: boolean
   [key: string]: any
 }
 
 export interface ApiMenu {
   menuId?: number
-  menuName: string
-  menuUrl: string
+  title?: string
+  menuName?: string
+  path?: string
+  menuUrl?: string
+  icon?: string
   menuIcon?: string
+  parentId?: number | null
+  isActive?: boolean
+  orderIndex?: number
+  submenu?: ApiSubmenu[]
   subMenus?: ApiSubmenu[]
   [key: string]: any
 }

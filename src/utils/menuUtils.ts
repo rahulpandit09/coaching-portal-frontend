@@ -12,20 +12,20 @@ export const extractMenusFromUser = (user: IUser | null): IMenu[] => {
       const menuId = Number(menu.menuId ?? menu.menu_id ?? menu.id ?? idx + 1)
       if (!menuId) return
 
-      const rawSubMenus = menu.subMenus || menu.sub_menus || menu.submenu || []
+      const rawSubMenus = menu.submenu || menu.subMenus || menu.sub_menus || []
       const normalizedSubMenus: ISubMenu[] = rawSubMenus.map((sub: any, sIdx: number) => ({
         subMenuId: Number(sub.subMenuId ?? sub.sub_menu_id ?? sub.id ?? sIdx + 1),
-        subMenuName: sub.subMenuName || sub.sub_menu_name || sub.title || sub.name || "",
-        subMenuUrl: sub.subMenuUrl || sub.sub_menu_url || sub.path || sub.url || "",
-        subMenuIcon: sub.subMenuIcon || sub.sub_menu_icon || sub.icon,
+        subMenuName: sub.title || sub.subMenuName || sub.sub_menu_name || sub.name || "",
+        subMenuUrl: sub.path || sub.subMenuUrl || sub.sub_menu_url || sub.url || "",
+        subMenuIcon: sub.icon || sub.subMenuIcon || sub.sub_menu_icon,
       }))
 
       if (!menuMap.has(menuId)) {
         menuMap.set(menuId, {
           menuId,
-          menuName: menu.menuName || menu.menu_name || menu.title || menu.name || "",
-          menuUrl: menu.menuUrl || menu.menu_url || menu.path || menu.url || "",
-          menuIcon: menu.menuIcon || menu.menu_icon || menu.icon,
+          menuName: menu.title || menu.menuName || menu.menu_name || menu.name || "",
+          menuUrl: menu.path || menu.menuUrl || menu.menu_url || menu.url || "",
+          menuIcon: menu.icon || menu.menuIcon || menu.menu_icon,
           subMenus: normalizedSubMenus,
         })
       } else {
@@ -43,7 +43,7 @@ export const extractMenusFromUser = (user: IUser | null): IMenu[] => {
 
   if (user.rolePermissions?.length) {
     user.rolePermissions.forEach((role: any) => {
-      const menus = role.menus || role.role_menus || []
+      const menus = role.menus || role.role_menus || (role.title || role.menuId ? [role] : [])
       processMenuList(menus)
     })
   }
