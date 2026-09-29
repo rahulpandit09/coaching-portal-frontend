@@ -3,9 +3,9 @@ export type UserRole = "Student" | "Teacher" | "Parent";
 export type UserStatus = "Active" | "Inactive";
 
 export interface StudentDetails {
+  student_id?: string;
   date_of_birth?: string;
   gender?: string;
-  student_id?: string;
   school_name?: string;
   class_name?: string;
   board?: string;
@@ -19,6 +19,9 @@ export interface StudentDetails {
   pin_code?: string;
   id?: number;
   user_id?: number;
+  studentDetailId?: number;
+  userId?: number;
+  studentId?: string;
 }
 
 export interface TeacherDetails {
@@ -31,6 +34,9 @@ export interface TeacherDetails {
   teaching_subjects?: string;
   id?: number;
   user_id?: number;
+  teacherDetailId?: number;
+  userId?: number;
+  employeeId?: string;
 }
 
 export interface ParentDetails {
@@ -40,7 +46,20 @@ export interface ParentDetails {
   preferred_communication?: string;
   id?: number;
   user_id?: number;
+  parentDetailId?: number;
+  userId?: number;
 }
+
+export interface UserDetails extends IUser {
+  userId?: number;
+  roleId?: number;
+  role: UserRole | string;
+
+  student_details?: StudentDetails | null;
+  teacher_details?: TeacherDetails | null;
+  parent_details?: ParentDetails | null;
+}
+
 
 export interface IUser {
   id: number;

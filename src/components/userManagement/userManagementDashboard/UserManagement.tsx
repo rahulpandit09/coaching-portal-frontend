@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Users, Loader2 } from "lucide-react";
+import { toast } from "react-toastify";
 
 import UserManagementTabs from "./UserManagementCard&Tabs";
 import axiosInstance from "@/api/axiosInstance";
-import { IUser, UserRole } from "@/utils/user.types";
+import { IUser, UserDetails, UserRole } from "@/utils/user.types";
 
 const mapUserData = (user: any): IUser => {
   let role: UserRole = "Student";
@@ -115,39 +116,36 @@ const UserManagement: React.FC = () => {
     fetchUsers();
   }, []);
 
-  const handleViewUser = (_user: IUser) => {
-    // View user action
+  const handleViewUser = (_user: UserDetails) => {
+    // View user action with detailed data
   };
 
   const handleEditUser = (_user: IUser) => {
     // Edit user action
   };
 
-  const handleDeleteUser = async (user: IUser) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${user.name}?`
+  const handleDeleteUser = (deletedUser: IUser) => {
+    setUsers((prevUsers) =>
+      prevUsers.filter((user) => {
+        const id = (user as any).userId ?? user.id ?? (user as any).user_id;
+        const deletedId =
+          (deletedUser as any).userId ??
+          (deletedUser as any).id ??
+          (deletedUser as any).user_id;
+
+        return id !== deletedId;
+      })
     );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await axiosInstance.delete(`/user-management/users/${user.id}`);
-      setUsers((prev) => prev.filter((item) => item.id !== user.id));
-    } catch (err) {
-      console.error("Delete user error:", err);
-      // Fallback local update if backend soft-fails
-      setUsers((prev) => prev.filter((item) => item.id !== user.id));
-    }
   };
+
+
 
   return (
     <div className="w-full">
       {/* =====================================================
           PAGE HEADER
       ====================================================== */}
-      <div className="mb-6 w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-5 py-4 shadow-sm">
+      <div className="mb-3 w-full rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 px-4 py-3 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
           {/* Left Side */}

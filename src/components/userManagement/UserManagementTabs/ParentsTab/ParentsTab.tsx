@@ -31,9 +31,7 @@ const ParentsTab: React.FC<ParentsTabProps> = ({
         !q ||
         (parent.name || "").toLowerCase().includes(q) ||
         (parent.email || "").toLowerCase().includes(q) ||
-        (parent.phone || "").toLowerCase().includes(q) ||
-        (parent.studentName && parent.studentName.toLowerCase().includes(q)) ||
-        (parent.occupation && parent.occupation.toLowerCase().includes(q));
+        (parent.phone || "").toLowerCase().includes(q);
 
       const matchesRel =
         relFilter === "All" || parent.relationship === relFilter;
@@ -43,12 +41,6 @@ const ParentsTab: React.FC<ParentsTabProps> = ({
       return matchesSearch && matchesRel && matchesStatus;
     });
   }, [parents, search, relFilter, statusFilter]);
-
-  const handleResetFilters = () => {
-    setSearch("");
-    setRelFilter("All");
-    setStatusFilter("All");
-  };
 
   return (
     <div className="flex flex-col gap-4 -mt-3">

@@ -1,9 +1,18 @@
-import React from "react"
-import { Eye, Pencil, Trash2 } from "lucide-react"
+import React, { useState, useMemo, useEffect } from "react"
+import {
+  Eye,
+  Pencil,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react"
 import { IUser } from "@/utils/user.types"
 
 interface AllUserTableProps {
   users: IUser[]
+  totalCount?: number
   onViewUser?: (user: IUser) => void
   onEditUser?: (user: IUser) => void
   onDeleteUser?: (user: IUser) => void
@@ -11,10 +20,25 @@ interface AllUserTableProps {
 
 const AllUserTable: React.FC<AllUserTableProps> = ({
   users,
+  totalCount,
   onViewUser,
   onEditUser,
   onDeleteUser,
 }) => {
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  // Reset to first page when data length changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [users.length])
+
+  const totalPages = Math.max(1, Math.ceil(users.length / pageSize))
+  const startIndex = (currentPage - 1) * pageSize
+  const endIndex = Math.min(startIndex + pageSize, users.length)
+  const paginatedUsers = useMemo(() => {
+    return users.slice(startIndex, endIndex)
+  }, [users, startIndex, endIndex])
   const getRoleBadge = (role: string) => {
     switch (role) {
       case "Student":
@@ -51,77 +75,77 @@ const AllUserTable: React.FC<AllUserTableProps> = ({
 
   const getUserId = (user: IUser) => {
     if (user.role === "Student") {
-      return user.student_details?.student_id || user.studentId || "—"
+      return user.student_details?.student_id || user.studentId || "-"
     }
 
     if (user.role === "Teacher") {
-      return user.teacher_details?.employee_id || user.employeeId || "—"
+      return user.teacher_details?.employee_id || user.employeeId || "-"
     }
 
     const idVal = user.id ?? (user as any).user_id ?? (user as any).userId
-    return idVal !== undefined && idVal !== null ? `#${idVal.toString().padStart(4, "0")}` : "—"
+    return idVal !== undefined && idVal !== null ? `#${idVal.toString().padStart(4, "0")}` : "-"
   }
 
   const getClassBoard = (user: IUser) => {
     if (user.role !== "Student" || !user.student_details) {
       if (user.role === "Student" && (user.className || user.board)) {
-        return `${user.className || "—"} / ${user.board || "—"}`
+        return `${user.className || "-"} / ${user.board || "-"}`
       }
-      return "—"
+      return "-"
     }
 
-    const className = user.student_details.class_name || "—"
-    const board = user.student_details.board || "—"
+    const className = user.student_details.class_name || "-"
+    const board = user.student_details.board || "-"
 
     return `${className} / ${board}`
   }
 
   const getSubjectsClasses = (user: IUser) => {
     if (user.role === "Student") {
-      return user.student_details?.subjects || "—"
+      return user.student_details?.subjects || "-"
     }
 
     if (user.role === "Teacher") {
-      const subjects = user.teacher_details?.teaching_subjects || user.teachingSubjects || "—"
-      const classes = user.teacher_details?.teaching_classes || user.teachingClasses || "—"
+      const subjects = user.teacher_details?.teaching_subjects || user.teachingSubjects || "-"
+      const classes = user.teacher_details?.teaching_classes || user.teachingClasses || "-"
 
       return `${subjects} / Classes: ${classes}`
     }
 
-    return "—"
+    return "-"
   }
 
   const getQualificationExperience = (user: IUser) => {
     if (user.role !== "Teacher" || !user.teacher_details) {
       if (user.role === "Teacher" && (user.qualification || user.experience)) {
-        return `${user.qualification || "—"} / ${user.experience ? `${user.experience} years` : "—"}`
+        return `${user.qualification || "-"} / ${user.experience ? `${user.experience} years` : "-"}`
       }
-      return "—"
+      return "-"
     }
 
-    const qualification = user.teacher_details.qualification || "—"
+    const qualification = user.teacher_details.qualification || "-"
     const experience =
       user.teacher_details.experience !== undefined
         ? `${user.teacher_details.experience} years`
-        : "—"
+        : "-"
 
     return `${qualification} / ${experience}`
   }
 
   const getRelationship = (user: IUser) => {
-    return user.parent_details?.relationship || user.relationship || "—"
+    return user.parent_details?.relationship || user.relationship || "-"
   }
 
   const getOccupationOrganization = (user: IUser) => {
     if (!user.parent_details) {
       if (user.occupation || user.companyName) {
-        return `${user.occupation || "—"} / ${user.companyName || "—"}`
+        return `${user.occupation || "-"} / ${user.companyName || "-"}`
       }
-      return "—"
+      return "-"
     }
 
-    const occupation = user.parent_details.occupation || "—"
-    const company = user.parent_details.company_name || "—"
+    const occupation = user.parent_details.occupation || "-"
+    const company = user.parent_details.company_name || "-"
 
     return `${occupation} / ${company}`
   }
@@ -140,7 +164,7 @@ const AllUserTable: React.FC<AllUserTableProps> = ({
 
   return (
     <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-      <div className="max-h-[600px] overflow-x-auto overflow-y-auto">
+      <div className="max-h-[calc(100vh-425px)] min-h-[260px] overflow-auto">
         <table className="w-full min-w-[1700px] border-collapse text-left">
 
           {/* ================= TABLE HEADER ================= */}
@@ -207,8 +231,8 @@ const AllUserTable: React.FC<AllUserTableProps> = ({
           {/* ================= TABLE BODY ================= */}
           <tbody className="divide-y divide-gray-200 text-sm">
 
-            {users.length > 0 ? (
-              users.map((user, index) => (
+            {paginatedUsers.length > 0 ? (
+              paginatedUsers.map((user, index) => (
                 <tr
                   key={user.id}
                   className="transition duration-150 hover:bg-orange-50/30"
@@ -216,7 +240,7 @@ const AllUserTable: React.FC<AllUserTableProps> = ({
 
                   {/* S.NO */}
                   <td className="border border-gray-200 px-4 py-3 text-center font-medium text-gray-500">
-                    {index + 1}
+                    {startIndex + index + 1}
                   </td>
 
                   {/* NAME */}
@@ -359,6 +383,85 @@ const AllUserTable: React.FC<AllUserTableProps> = ({
 
           </tbody>
         </table>
+      </div>
+
+      {/* ================= TABLE FOOTER ================= */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-gray-200 bg-gray-50/90 px-4 py-2.5 text-xs text-gray-600">
+        {/* Left side: Records count & Rows per page */}
+        <div className="flex flex-wrap items-center gap-4">
+          <div>
+            Showing <strong className="font-semibold text-gray-900">{users.length > 0 ? startIndex + 1 : 0}</strong> to{" "}
+            <strong className="font-semibold text-gray-900">{endIndex}</strong> of{" "}
+            <strong className="font-semibold text-gray-900">{users.length}</strong> {users.length === 1 ? "user" : "users"}
+            {totalCount !== undefined && totalCount !== users.length && (
+              <span className="text-gray-400 ml-1">(filtered from {totalCount} total)</span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 border-l border-gray-300 pl-4">
+            <span>Rows per page:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value))
+                setCurrentPage(1)
+              }}
+              className="rounded border border-gray-300 bg-white px-2 py-0.5 text-xs text-gray-700 outline-none focus:border-orange-500"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Right side: Pagination Navigation */}
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            title="First Page"
+            onClick={() => setCurrentPage(1)}
+            disabled={currentPage === 1}
+            className="flex h-7 w-7 items-center justify-center rounded border border-gray-300 bg-white text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronsLeft size={14} />
+          </button>
+
+          <button
+            type="button"
+            title="Previous Page"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="flex h-7 w-7 items-center justify-center rounded border border-gray-300 bg-white text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronLeft size={14} />
+          </button>
+
+          <span className="px-2 text-xs font-medium text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <button
+            type="button"
+            title="Next Page"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages || users.length === 0}
+            className="flex h-7 w-7 items-center justify-center rounded border border-gray-300 bg-white text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronRight size={14} />
+          </button>
+
+          <button
+            type="button"
+            title="Last Page"
+            onClick={() => setCurrentPage(totalPages)}
+            disabled={currentPage === totalPages || users.length === 0}
+            className="flex h-7 w-7 items-center justify-center rounded border border-gray-300 bg-white text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronsRight size={14} />
+          </button>
+        </div>
       </div>
     </div>
   )
