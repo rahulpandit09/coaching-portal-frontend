@@ -66,8 +66,20 @@ export const SignInForm: React.FunctionComponent<ISignInFormProps> = ({ }) => {
 
             // Decode token to get real user_id and role_id from backend payload
             const decoded: any = decodeJwt(access_token)
-            const roleId = decoded.role_id || 1
-            const roleName = roleId === 3 ? "Client" : roleId === 2 ? "Coach" : "Admin"
+            const roleId = Number(decoded.role_id)
+
+            if (!roleId) {
+                throw new Error("Invalid role ID received from authentication token.")
+            }
+
+            const roleNameMap: Record<number, string> = {
+                1: "Tutor",
+                2: "Teacher",
+                3: "Student",
+                4: "Parent",
+            }
+
+            const roleName = roleNameMap[roleId] || "Unknown"
 
             const decodedUserId =
                 decoded.user_id ||
@@ -84,13 +96,59 @@ export const SignInForm: React.FunctionComponent<ISignInFormProps> = ({ }) => {
                 // Non-critical fallback if profile endpoint is not available
             }
 
-            // Extract user info from fetched profile, backend login response, or token payload
-            const backendUser =
-                fetchedUserProfile ||
+            // Extract user info from backend login response merged with fetched profile
+            const loginUserData =
                 response?.data?.user ||
                 response?.data?.user_data ||
                 (response?.data?.data ? response.data.data : response?.data) ||
                 {}
+
+            const profileUser = fetchedUserProfile?.data || fetchedUserProfile || {}
+
+            const backendUser = {
+                ...loginUserData,
+                ...profileUser,
+                teacher_details: profileUser.teacher_details || loginUserData.teacher_details || null,
+                student_details: profileUser.student_details || loginUserData.student_details || null,
+                parent_details: profileUser.parent_details || loginUserData.parent_details || null,
+            }
+
+            // Fetch role-based menu/submenu permissions
+            let rolePermissions: any = {
+                roleId,
+                menus: [],
+            }
+
+            try {
+                const roleAccessRes = await axiosInstance.get(
+                    API_ENDPOINTS.ROLES.ACCESS(roleId)
+                )
+
+                const accessData = roleAccessRes?.data || {}
+
+                rolePermissions = {
+                    roleId,
+                    menus: (accessData.menus || []).map((menu: any) => ({
+                        ...menu,
+                        path: menu.path,
+                        submenu: (menu.subMenus || menu.submenu || []).map((subMenu: any) => ({
+                            ...subMenu,
+                            subMenuId: subMenu.subMenuId || subMenu.id,
+                            path: subMenu.path,
+                        })),
+                    })),
+                }
+
+                console.log(
+                    "🔐 [SignInForm] Role permissions fetched:",
+                    rolePermissions
+                )
+            } catch (error) {
+                console.error(
+                    "❌ [SignInForm] Failed to fetch role permissions:",
+                    error
+                )
+            }
 
             const userEmail =
                 backendUser.emailAddress ||
@@ -130,6 +188,41 @@ export const SignInForm: React.FunctionComponent<ISignInFormProps> = ({ }) => {
 
             const photoUrl = rawPhoto ? formatPhotoUrl(rawPhoto) || undefined : undefined
 
+            // Extract role-specific ID directly from response (teacher employee_id, student student_id, parent parent_id)
+            const employeeId =
+                backendUser.teacher_details?.employee_id ||
+                backendUser.teacher_details?.employeeId ||
+                backendUser.student_details?.student_id ||
+                backendUser.student_details?.studentId ||
+                backendUser.student_details?.enrollment_number ||
+                backendUser.student_details?.roll_number ||
+                backendUser.student_details?.employee_id ||
+                backendUser.parent_details?.parent_id ||
+                backendUser.parent_details?.parentId ||
+                backendUser.parent_details?.employee_id ||
+                backendUser.employee_id ||
+                backendUser.employeeId ||
+                backendUser.employeeNumber ||
+                loginUserData.teacher_details?.employee_id ||
+                loginUserData.teacher_details?.employeeId ||
+                loginUserData.student_details?.student_id ||
+                loginUserData.student_details?.studentId ||
+                loginUserData.parent_details?.parent_id ||
+                loginUserData.employee_id ||
+                loginUserData.employeeId ||
+                loginUserData.employeeNumber
+
+            // Extract phone number directly from response
+            const phone_number =
+                backendUser.phone_number ||
+                backendUser.phoneNumber ||
+                backendUser.phone ||
+                backendUser.contactNumber ||
+                loginUserData.phone_number ||
+                loginUserData.phoneNumber ||
+                loginUserData.phone ||
+                decoded.phone_number
+
             // Build user object dynamically from API response & token payload
             const userData = {
                 userId:
@@ -147,12 +240,10 @@ export const SignInForm: React.FunctionComponent<ISignInFormProps> = ({ }) => {
                 roleName: roleName,
                 profilePhoto: photoUrl,
                 avatarUrl: photoUrl,
-                isSupervisor: roleId === 1,
-                rolePermissions:
-                    response?.data?.user?.rolePermissions ||
-                    response?.data?.rolePermissions ||
-                    backendUser.rolePermissions ||
-                    [],
+                employeeId,
+                phone_number,
+                isSupervisor: false,
+                rolePermissions,
             }
 
             if (typeof window !== "undefined") {

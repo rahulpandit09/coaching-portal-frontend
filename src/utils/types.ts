@@ -44,6 +44,8 @@ export interface IUser {
   isSupervisor: boolean
   firstName: string
   lastName: string
+  employeeId?: string
+  phone_number?: string
   contactNumber?: string
   employeeNumber?: string
 }

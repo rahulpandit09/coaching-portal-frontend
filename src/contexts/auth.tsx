@@ -5,7 +5,6 @@ import { useUserStore } from "../store/user"
 import { IUser } from "@/utils/types"
 import { extractPermissions, PermissionMap } from "@/utils/permissionUtils"
 import { formatPhotoUrl } from "@/utils/photoUtils"
-import { menuApi } from "@/api/menu"
 
 interface AuthContextType {
   user: IUser | null
@@ -27,14 +26,14 @@ const AuthContext = createContext<AuthContextType>({
   username: null,
   loading: true,
   permissions: null,
-  updateUser: () => {},
-  updateUserProfilePhoto: () => {},
+  updateUser: () => { },
+  updateUserProfilePhoto: () => { },
   hasRole: () => false,
   hasMenu: () => false,
   hasSubMenu: () => false,
   hasRoleAccess: () => false,
   getRolesForSubMenu: () => [],
-  logSubMenuClick: () => {},
+  logSubMenuClick: () => { },
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -47,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const token = nookies.get(null).token || localStorage.getItem("accessToken")
-    const PUBLIC_ROUTES = ["/signin", "/forgot-password", "/reset-password", "/user-register","/verify-otp","/home"]
+    const PUBLIC_ROUTES = ["/signin", "/forgot-password", "/reset-password", "/user-register", "/verify-otp", "/home"]
     const path = router.pathname
 
     if (!token && !PUBLIC_ROUTES.includes(path)) {
@@ -66,26 +65,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      const roleId = userData.roleId || (userData.roleName === "Client" || userData.role === "Client" ? 3 : userData.roleName === "Coach" || userData.role === "Coach" ? 2 : 1)
+      const roleId = userData.roleId
 
       const rawPhoto = userData.profilePhoto || userData.avatarUrl || (userData as any).profile_image
       const photoUrl = rawPhoto ? formatPhotoUrl(rawPhoto) || undefined : undefined
+
+      const employeeId =
+        userData.employeeId ||
+        (userData as any).employee_id ||
+        userData.employeeNumber ||
+        (userData as any).teacher_details?.employee_id ||
+        (userData as any).teacher_details?.employeeId ||
+        (userData as any).student_details?.student_id ||
+        (userData as any).student_details?.studentId ||
+        (userData as any).student_details?.enrollment_number ||
+        (userData as any).student_details?.roll_number ||
+        (userData as any).student_details?.employee_id ||
+        (userData as any).parent_details?.parent_id ||
+        (userData as any).parent_details?.parentId ||
+        (userData as any).parent_details?.employee_id
+
+      const phone_number =
+        userData.phone_number ||
+        (userData as any).phoneNumber ||
+        (userData as any).phone ||
+        userData.contactNumber
 
       const needsEnrichment =
         email !== userData.emailAddress ||
         (firstName && firstName !== userData.firstName) ||
         roleId !== userData.roleId ||
-        (photoUrl && photoUrl !== userData.profilePhoto)
+        (photoUrl && photoUrl !== userData.profilePhoto) ||
+        (employeeId && employeeId !== userData.employeeId) ||
+        (phone_number && phone_number !== userData.phone_number)
 
       const enrichedUser: IUser = needsEnrichment
         ? {
-            ...userData,
-            emailAddress: email,
-            firstName: firstName || userData.firstName || "User",
-            roleId: roleId,
-            profilePhoto: photoUrl || userData.profilePhoto,
-            avatarUrl: photoUrl || userData.avatarUrl,
-          }
+          ...userData,
+          emailAddress: email,
+          firstName: firstName || userData.firstName || "User",
+          roleId: roleId,
+          profilePhoto: photoUrl || userData.profilePhoto,
+          avatarUrl: photoUrl || userData.avatarUrl,
+          employeeId: employeeId || userData.employeeId,
+          phone_number: phone_number || userData.phone_number,
+        }
         : userData
 
       // Prevent infinite re-render loop if user state is already set and matching
@@ -94,45 +118,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user.userId === enrichedUser.userId &&
         user.emailAddress === enrichedUser.emailAddress &&
         user.firstName === enrichedUser.firstName &&
-        user.profilePhoto === enrichedUser.profilePhoto
+        user.profilePhoto === enrichedUser.profilePhoto &&
+        user.employeeId === enrichedUser.employeeId &&
+        user.phone_number === enrichedUser.phone_number
       ) {
         setLoading(false)
         return
       }
 
       setUser(enrichedUser)
-      const userPermissionsSource =
-        enrichedUser.rolePermissions?.length
-          ? enrichedUser.rolePermissions
-          : Array.isArray((enrichedUser as any).menus) && (enrichedUser as any).menus.length
-          ? [{ roleId: enrichedUser.roleId || 1, menus: (enrichedUser as any).menus }]
-          : []
 
-      if (userPermissionsSource.length > 0) {
-        setPermissions(extractPermissions(userPermissionsSource))
-        setLoading(false)
-      } else {
-        // Fetch menus dynamically if user object doesn't have rolePermissions attached
-        menuApi
-          .getAllMenus()
-          .then((res: any) => {
-            const rawData = Array.isArray(res) ? res : res?.data || []
-            if (Array.isArray(rawData) && rawData.length > 0) {
-              setPermissions(
-                extractPermissions([{ roleId: enrichedUser.roleId || 1, menus: rawData }])
-              )
-            } else {
-              setPermissions(extractPermissions([]))
-            }
-          })
-          .catch((err) => {
-            console.error("Failed to load menus in auth context:", err)
-            setPermissions(extractPermissions([]))
-          })
-          .finally(() => {
-            setLoading(false)
-          })
-      }
+      setPermissions(extractPermissions(enrichedUser.rolePermissions))
+      setLoading(false)
     }
 
     if (storeUser) {
@@ -152,20 +149,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const roleIds = permissions?.roleIds || []
 
-  const isAdmin = user?.roleId === 1 || user?.role === "Admin" || user?.roleName === "Admin" || user?.isSupervisor === true
-
   const hasRole = (roleId: number) => {
-    if (isAdmin) return true
     return roleIds.includes(roleId)
   }
 
   const hasMenu = (menuUrl: string) => {
-    if (isAdmin) return true
     return permissions?.menus.has(menuUrl) ?? false
   }
 
   const hasSubMenu = (subMenuUrl: string) => {
-    if (isAdmin) return true
     return permissions?.subMenus.has(subMenuUrl) ?? false
   }
 

@@ -53,6 +53,7 @@ export const API_ENDPOINTS = {
     BASE: "/roles/",
     BY_ID: (id: string | number) => `/roles/${id}`,
     BY_NAME: (name: string) => `/roles/name/${name}`,
+    ACCESS: (roleId: string | number) => `/roles/${roleId}/access`,
   },
 } as const
 

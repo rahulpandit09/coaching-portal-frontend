@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react"
 import { useAuth } from "@/contexts/auth"
 import { Camera, Loader2, Trash2 } from "lucide-react"
+import { toast } from "react-toastify"
 import { deleteProfilePhoto, saveProfilePhoto } from "@/api/profile"
 import { formatPhotoUrl } from "@/utils/photoUtils"
 
@@ -9,7 +10,6 @@ const Profile: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [tempAvatar, setTempAvatar] = useState<string | null>(null)
-  const [statusMessage, setStatusMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -43,19 +43,17 @@ const Profile: React.FC = () => {
 
     const previewUrl = URL.createObjectURL(file)
     setTempAvatar(previewUrl)
-    setStatusMessage(null)
   }
 
   const handleSaveAvatar = async () => {
     const file = fileInputRef.current?.files?.[0]
 
     if (!file) {
-      setStatusMessage({ type: "error", text: "Please select an image." })
+      toast.error("Please select an image.")
       return
     }
 
     setIsUploading(true)
-    setStatusMessage(null)
 
     try {
       const candidateIds = getCandidateIds()
@@ -89,16 +87,17 @@ const Profile: React.FC = () => {
 
       updateUserProfilePhoto(newPhotoUrl)
       setTempAvatar(null)
+      toast.success("Profile photo uploaded successfully!")
     } catch (err: any) {
       console.error("Failed to process profile photo:", err)
-      setStatusMessage({
-        type: "error",
-        text: err?.response?.data?.detail?.[0]?.msg || err?.response?.data?.detail || "Failed to process profile photo.",
-      })
+      toast.error(
+        err?.response?.data?.detail?.[0]?.msg ||
+        err?.response?.data?.detail ||
+        "Failed to upload profile photo."
+      )
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ""
-      setTimeout(() => setStatusMessage(null), 4000)
     }
   }
 
@@ -111,7 +110,6 @@ const Profile: React.FC = () => {
 
   const handleDeletePhoto = async () => {
     setIsDeleting(true)
-    setStatusMessage(null)
 
     try {
       const candidateIds = getCandidateIds()
@@ -141,16 +139,16 @@ const Profile: React.FC = () => {
       }
 
       updateUserProfilePhoto(null)
-      // setStatusMessage({ type: "success", text: "Profile photo deleted successfully!" })
+      toast.success("Profile photo deleted successfully!")
     } catch (err: any) {
       console.error("Failed to delete profile photo:", err)
-      setStatusMessage({
-        type: "error",
-        text: err?.response?.data?.detail?.[0]?.msg || err?.response?.data?.detail || "Failed to delete profile photo.",
-      })
+      toast.error(
+        err?.response?.data?.detail?.[0]?.msg ||
+        err?.response?.data?.detail ||
+        "Failed to delete profile photo."
+      )
     } finally {
       setIsDeleting(false)
-      setTimeout(() => setStatusMessage(null), 4000)
     }
   }
 
@@ -169,24 +167,6 @@ const Profile: React.FC = () => {
         accept="image/*"
         className="hidden"
       />
-
-      {/* Status alert */}
-      {statusMessage && (
-        <div
-          className={`mb-4 p-4 rounded-xl text-sm font-medium border flex items-center justify-between shadow-sm ${statusMessage.type === "success"
-              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-              : "bg-red-50 text-red-800 border-red-200"
-            }`}
-        >
-          <span>{statusMessage.text}</span>
-          <button
-            onClick={() => setStatusMessage(null)}
-            className="text-xs opacity-60 hover:opacity-100"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
 
       {/* Main 2-column layout */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -312,23 +292,23 @@ const Profile: React.FC = () => {
                 </div>
               </div>
 
-              {/* Contact Number */}
+              {/* Phone Number */}
               <div>
                 <div className="text-sm font-medium text-gray-500">
-                  Contact Number
+                  Phone Number
                 </div>
                 <div className="text-lg text-gray-900">
-                  {user?.contactNumber ?? "N/A"}
+                  {user?.phone_number ?? "N/A"}
                 </div>
               </div>
 
-              {/* Employee No. */}
+              {/* Employee ID */}
               <div>
                 <div className="text-sm font-medium text-gray-500">
-                  Employee No.
+                  Employee ID
                 </div>
                 <div className="text-lg text-gray-900">
-                  {user?.employeeNumber ?? "N/A"}
+                  {user?.employeeId ?? "N/A"}
                 </div>
               </div>
 

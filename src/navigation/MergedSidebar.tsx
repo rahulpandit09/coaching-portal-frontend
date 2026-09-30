@@ -1,11 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { ChevronDown, ChevronRight, Loader2 } from "lucide-react"
+import { ChevronDown, ChevronRight } from "lucide-react"
 
 import { extractMenusFromUser, IMenu } from "@/utils/menuUtils"
 import { getIconComponent } from "@/utils/iconUtils"
 import SubMenu from "@/navigation/SubMenu"
-import { menuApi } from "@/api/menu"
 
 interface Props {
   user: any
@@ -22,51 +21,11 @@ const MergedSidebar: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const [fetchedMenus, setFetchedMenus] = useState<IMenu[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
 
-  const userMenus: IMenu[] = useMemo(
+  const menuData: IMenu[] = useMemo(
     () => extractMenusFromUser(user),
-    [user?.rolePermissions, (user as any)?.menus]
+    [user?.rolePermissions]
   )
-
-  // Fetch menus dynamically from GET /menu/ endpoint if user rolePermissions are missing and not yet fetched
-  useEffect(() => {
-    if (userMenus.length === 0 && fetchedMenus.length === 0 && !loading) {
-      setLoading(true)
-      menuApi
-        .getAllMenus()
-        .then((res: any) => {
-          const rawData = Array.isArray(res) ? res : res?.data || []
-          if (Array.isArray(rawData)) {
-            const mappedMenus: IMenu[] = rawData.map((item: any, idx: number) => {
-              const rawSubMenus = item.submenu || item.subMenus || item.sub_menus || []
-              return {
-                menuId: Number(item.menuId ?? item.menu_id ?? item.id ?? idx + 1),
-                menuName: item.title || item.menuName || item.menu_name || item.name || "",
-                menuUrl: item.path || item.menuUrl || item.menu_url || item.url || "",
-                menuIcon: item.icon || item.menuIcon || item.menu_icon,
-                subMenus: rawSubMenus.map((sub: any, sIdx: number) => ({
-                  subMenuId: Number(sub.subMenuId ?? sub.sub_menu_id ?? sub.id ?? sIdx + 1),
-                  subMenuName: sub.title || sub.subMenuName || sub.sub_menu_name || sub.name || "",
-                  subMenuUrl: sub.path || sub.subMenuUrl || sub.sub_menu_url || sub.url || "",
-                  subMenuIcon: sub.icon || sub.subMenuIcon || sub.sub_menu_icon,
-                })),
-              }
-            })
-            setFetchedMenus(mappedMenus)
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to fetch sidebar menus from API:", err)
-        })
-        .finally(() => {
-          setLoading(false)
-        })
-    }
-  }, [userMenus, fetchedMenus.length, loading])
-
-  const menuData: IMenu[] = userMenus.length > 0 ? userMenus : fetchedMenus
 
   // Track expanded menu IDs dynamically
   const [expandedMenus, setExpandedMenus] = useState<Set<number>>(new Set())
@@ -116,12 +75,7 @@ const MergedSidebar: React.FC<Props> = ({
       }`}
     >
       <nav className="p-1 space-y-1 overflow-y-auto h-full">
-        {loading && menuData.length === 0 ? (
-          <div className="flex items-center justify-center py-8 text-gray-400">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            {isOpenMenu && <span className="ml-2 text-xs font-medium">Loading menus...</span>}
-          </div>
-        ) : menuData.length === 0 ? (
+        {menuData.length === 0 ? (
           isOpenMenu && (
             <div className="p-4 text-center text-xs text-gray-400">
               No menu items found
