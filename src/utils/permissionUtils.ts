@@ -5,42 +5,73 @@ export interface PermissionMap {
   roleSubMenuMap: Map<number, Set<number>>
 }
 
-export function extractPermissions(rolePermissions: any[]): PermissionMap {
+export function extractPermissions(
+  rolePermissions: any
+): PermissionMap {
   const roleIds: number[] = []
   const menus = new Set<string>()
   const subMenus = new Set<string>()
   const roleSubMenuMap = new Map<number, Set<number>>()
 
-  if (!Array.isArray(rolePermissions)) {
-    return { roleIds, menus, subMenus, roleSubMenuMap }
+  const permsList = Array.isArray(rolePermissions)
+    ? rolePermissions
+    : rolePermissions && typeof rolePermissions === "object"
+    ? [rolePermissions]
+    : []
+
+  if (permsList.length === 0) {
+    return {
+      roleIds,
+      menus,
+      subMenus,
+      roleSubMenuMap,
+    }
   }
 
-  rolePermissions.forEach((role: any) => {
-    const roleId = Number(role.roleId ?? role.role_id ?? role.id)
-    if (roleId) roleIds.push(roleId)
+  permsList.forEach((rolePermission) => {
+    const roleId = Number(rolePermission.roleId)
+
+    if (!roleId) return
+
+    roleIds.push(roleId)
 
     const roleSubMenus = new Set<number>()
-    const menuList = role.menus || role.role_menus || (role.title || role.menuId || role.menu_id ? [role] : [])
+
+    const menuList = Array.isArray(rolePermission.menus)
+      ? rolePermission.menus
+      : []
 
     menuList.forEach((menu: any) => {
-      const menuUrl = menu.path || menu.menuUrl || menu.menu_url || menu.url
-      if (menuUrl) menus.add(menuUrl)
+      if (menu.path) {
+        menus.add(menu.path)
+      }
 
-      const subMenuList = menu.submenu || menu.subMenus || menu.sub_menus || []
+      const subMenuList = Array.isArray(menu.submenu)
+        ? menu.submenu
+        : []
+
       subMenuList.forEach((subMenu: any) => {
-        const subMenuUrl = subMenu.path || subMenu.subMenuUrl || subMenu.sub_menu_url || subMenu.url
-        const subMenuId = Number(subMenu.subMenuId ?? subMenu.sub_menu_id ?? subMenu.id)
+        if (subMenu.path) {
+          subMenus.add(subMenu.path)
+        }
 
-        if (subMenuUrl) subMenus.add(subMenuUrl)
-        if (subMenuId) roleSubMenus.add(subMenuId)
+        const subMenuId = Number(subMenu.subMenuId)
+
+        if (subMenuId) {
+          roleSubMenus.add(subMenuId)
+        }
       })
     })
 
-    if (roleId) {
-      roleSubMenuMap.set(roleId, roleSubMenus)
-    }
+    roleSubMenuMap.set(roleId, roleSubMenus)
   })
 
-  return { roleIds, menus, subMenus, roleSubMenuMap }
+  return {
+    roleIds,
+    menus,
+    subMenus,
+    roleSubMenuMap,
+  }
 }
+
 

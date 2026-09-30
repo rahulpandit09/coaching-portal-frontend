@@ -48,11 +48,19 @@ export const deleteRole = async (roleId: number | string): Promise<any> => {
   return apiClient.delete(API_ENDPOINTS.ROLES.BY_ID(roleId))
 }
 
+/**
+  * Get role permissions access mapping by role ID
+  */
+export const getRoleAccess = async (roleId: number | string): Promise<any> => {
+  return apiClient.get<any>(API_ENDPOINTS.ROLES.ACCESS(roleId))
+}
+
 export const rolesApi = {
   getRoles,
   createRole,
   getRoleById,
   getRoleByName,
+  getRoleAccess,
   updateRole,
   deleteRole,
 }
