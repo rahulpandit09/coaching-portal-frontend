@@ -17,7 +17,7 @@ const ParentsTabTable: React.FC<ParentsTabTableProps> = ({
 }) => {
   return (
     <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-      <div className="max-h-[520px] overflow-auto">
+      <div className="max-h-[calc(100vh-425px)] min-h-[260px] overflow-auto">
         <table className="w-full min-w-[950px] border-collapse text-left">
           {/* HEADER */}
           <thead className="sticky top-0 z-10 bg-[#dce9f6] shadow-sm">
@@ -66,7 +66,7 @@ const ParentsTabTable: React.FC<ParentsTabTableProps> = ({
                   <td className="border border-gray-200 px-4 py-3">
                     <div>
                       <div className="font-semibold text-gray-900">
-                        {parent.name || "—"}
+                        {parent.name || "-"}
                       </div>
                       {/* <div className="text-xs text-gray-400">
                         ID: #{parent.id.toString().padStart(4, "0")}
@@ -75,9 +75,9 @@ const ParentsTabTable: React.FC<ParentsTabTableProps> = ({
                   </td>
 
                   {/* Student */}
-                  <td className="border border-gray-200 px-4 py-3">
-                    <div className="font-medium text-blue-700">
-                      {parent.studentName || "Assigned Student"}
+                  <td className="border border-gray-200 px-4 py-3 text-center">
+                    <div className="font-medium">
+                      {parent.studentName || "-"}
                     </div>
                   </td>
 
@@ -175,6 +175,18 @@ const ParentsTabTable: React.FC<ParentsTabTableProps> = ({
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* ================= TABLE FOOTER ================= */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 bg-gray-50/90 px-4 py-2.5 text-xs text-gray-500">
+        <div className="flex items-center gap-1.5">
+          <span>Showing</span>
+          <strong className="font-semibold text-gray-800">{parents.length}</strong>
+          <span>{parents.length === 1 ? "parent" : "parents"}</span>
+        </div>
+        <div className="text-xs font-medium text-gray-400">
+          Total Records: {parents.length}
+        </div>
       </div>
     </div>
   );

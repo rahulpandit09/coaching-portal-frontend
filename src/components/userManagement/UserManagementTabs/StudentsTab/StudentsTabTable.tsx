@@ -17,7 +17,7 @@ const StudentsTabTable: React.FC<StudentsTabTableProps> = ({
 }) => {
   return (
     <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-      <div className="max-h-[520px] overflow-auto">
+      <div className="max-h-[calc(100vh-425px)] min-h-[260px] overflow-auto">
         <table className="w-full min-w-[950px] border-collapse text-left">
           {/* HEADER */}
           <thead className="sticky top-0 z-10 bg-[#dce9f6] shadow-sm">
@@ -74,7 +74,7 @@ const StudentsTabTable: React.FC<StudentsTabTableProps> = ({
                   </td>
 
                   {/* Student ID */}
-                  <td className="border border-gray-200 px-4 py-3 text-center font-mono text-xs font-semibold text-blue-600">
+                  <td className="border border-gray-200 px-4 py-3 text-center font-mono text-xs font-medium">
                     {student.studentId || (student.id != null ? `STU-${student.id.toString().padStart(4, "0")}` : "—")}
                   </td>
 
@@ -164,6 +164,18 @@ const StudentsTabTable: React.FC<StudentsTabTableProps> = ({
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* ================= TABLE FOOTER ================= */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 bg-gray-50/90 px-4 py-2.5 text-xs text-gray-500">
+        <div className="flex items-center gap-1.5">
+          <span>Showing</span>
+          <strong className="font-semibold text-gray-800">{students.length}</strong>
+          <span>{students.length === 1 ? "student" : "students"}</span>
+        </div>
+        <div className="text-xs font-medium text-gray-400">
+          Total Records: {students.length}
+        </div>
       </div>
     </div>
   );

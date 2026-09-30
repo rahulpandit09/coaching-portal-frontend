@@ -108,24 +108,11 @@ const AllUserTab: React.FC<AllUserTabProps> = ({
       {/* TABLE */}
       <AllUserTable
         users={filteredUsers}
+        totalCount={users.length}
         onViewUser={onViewUser}
         onEditUser={onEditUser}
         onDeleteUser={onDeleteUser}
       />
-
-      {/* RECORD COUNT */}
-      <div className="text-xs text-gray-500">
-        Showing{" "}
-        <strong className="text-gray-700">
-          {filteredUsers.length}
-        </strong>{" "}
-        of{" "}
-        <strong className="text-gray-700">
-          {users.length}
-        </strong>{" "}
-        users
-      </div>
-
     </div>
   )
 }
