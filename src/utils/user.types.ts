@@ -40,6 +40,8 @@ export interface TeacherDetails {
 }
 
 export interface ParentDetails {
+  parent_id?: string;
+  parentId?: string;
   relationship?: string;
   occupation?: string;
   company_name?: string;
@@ -100,6 +102,7 @@ export interface IUser {
   teachingClasses?: string;
 
   // Parent specific fields
+  parentId?: string;
   relationship?: string;
   occupation?: string;
   companyName?: string;
@@ -143,6 +146,7 @@ export interface IAddUserForm {
   pinCode: string;
 
   // Parent fields
+  parentId?: string;
   relationship: string;
   occupation: string;
   companyName: string;
