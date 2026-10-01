@@ -37,7 +37,8 @@ const buildTeacherDetails = (formData: IAddUserForm) => ({
   teaching_subjects: formData.teachingSubjects,
 });
 
-const buildParentDetails = (formData: IAddUserForm) => ({
+const buildParentDetails = (formData: IAddUserForm, generatedId?: string) => ({
+  parent_id: generatedId || formData.parentId || undefined,
   relationship: formData.relationship,
   occupation: formData.occupation,
   company_name: formData.companyName,
@@ -47,7 +48,8 @@ const buildParentDetails = (formData: IAddUserForm) => ({
 const buildUserPayload = (
   formData: IAddUserForm,
   isCreateMode: boolean,
-  roleId: number
+  roleId: number,
+  generatedId?: string
 ) => {
   const payload: any = {
     first_name: formData.firstName,
@@ -68,7 +70,7 @@ const buildUserPayload = (
   } else if (formData.role === "Teacher") {
     payload.teacher_details = buildTeacherDetails(formData);
   } else if (formData.role === "Parent") {
-    payload.parent_details = buildParentDetails(formData);
+    payload.parent_details = buildParentDetails(formData, generatedId);
   }
 
   return payload;
@@ -119,6 +121,7 @@ const AddNewUserPage: React.FC = () => {
     pinCode: "",
 
     // Parent fields
+    parentId: "",
     relationship: "",
     occupation: "",
     companyName: "",
@@ -190,6 +193,10 @@ const AddNewUserPage: React.FC = () => {
           pinCode: studentDetails.pin_code || "",
 
           // Parent
+          parentId:
+            parentDetails.parent_id ||
+            parentDetails.parentId ||
+            "",
           relationship: parentDetails.relationship || "",
           occupation: parentDetails.occupation || "",
           companyName: parentDetails.company_name || "",
@@ -210,6 +217,8 @@ const AddNewUserPage: React.FC = () => {
           studentDetails.studentId ||
           teacherDetails.employee_id ||
           teacherDetails.employeeId ||
+          parentDetails.parent_id ||
+          parentDetails.parentId ||
           ""
         );
       } catch (error: any) {
@@ -224,7 +233,7 @@ const AddNewUserPage: React.FC = () => {
       }
     };
 
-    fetchUserDetails();
+    void fetchUserDetails();
   }, [isViewMode, isEditMode, userId]);
 
   // ID preview generation ONLY for new user creation
@@ -258,6 +267,21 @@ const AddNewUserPage: React.FC = () => {
         })
         .catch((err) => {
           console.error("Error fetching preview Employee ID:", err);
+          setGeneratedId("");
+        })
+        .finally(() => {
+          setIsGeneratingId(false);
+        });
+    } else if (formData.role === "Parent") {
+      setIsGeneratingId(true);
+      axiosInstance
+        .get("/user-management/users/generate-parent-id")
+        .then((res) => {
+          const id = res.data.parent_id || res.data.id || "";
+          setGeneratedId(id);
+        })
+        .catch((err) => {
+          console.error("Error fetching preview Parent ID:", err);
           setGeneratedId("");
         })
         .finally(() => {
@@ -352,7 +376,7 @@ const AddNewUserPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const payload = buildUserPayload(formData, isCreateMode, roleId);
+      const payload = buildUserPayload(formData, isCreateMode, roleId, generatedId);
 
       if (isEditMode) {
         await axiosInstance.put(`/user-management/users/${userId}`, payload);
@@ -941,6 +965,34 @@ const AddNewUserPage: React.FC = () => {
                   </h3>
 
                   <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {/* Parent ID - Auto Generated Preview */}
+                    <div>
+                      <label
+                        htmlFor="parent-id-input"
+                        className="mb-1.5 block text-sm font-medium text-gray-700"
+                      >
+                        Parent ID
+                      </label>
+
+                      <input
+                        id="parent-id-input"
+                        type="text"
+                        value={
+                          isGeneratingId
+                            ? "Generating..."
+                            : generatedId || "Auto-generated"
+                        }
+                        disabled
+                        className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-3.5 py-2.5 text-sm font-semibold text-gray-700"
+                      />
+
+                      {isCreateMode && (
+                        <p className="mt-1 text-xs text-gray-400">
+                          Parent ID generated automatically.
+                        </p>
+                      )}
+                    </div>
+
                     {/* Relationship */}
                     <div>
                       <label
