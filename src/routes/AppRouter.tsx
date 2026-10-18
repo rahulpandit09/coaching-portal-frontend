@@ -8,6 +8,7 @@ import Dashboard from "../components/Dashbard/Dashboard";
 import NotFound from "./NotFound";
 import Profile from "./Profile";
 import Settings from "./Settings";
+import Notifications from "./Notifications";
 import SignOut from "./SignOut";
 import Roles from "./Roles";
 import Permissions from "./Permissions";
@@ -172,6 +173,20 @@ const AppRouter: React.FC<IAppRouterProps> = ({ isOpenMenu }) => {
         />
 
 
+
+        {/* =========================
+            NOTIFICATIONS
+        ========================== */}
+
+        <Route
+          path="/notifications"
+          element={<Notifications />}
+        />
+
+        <Route
+          path="/notification"
+          element={<Navigate to="/notifications" replace />}
+        />
 
         {/* =========================
             SETTINGS

@@ -28,7 +28,10 @@ const Navbar: React.FC<INavbarProps> = ({
   const { user: authUser } = useAuth()
   const user = authUser || initialUser
 
-  const [notificationsCount, setNotificationsCount] = useState(3)
+  const [notificationsCount, setNotificationsCount] = useState(() => {
+    const stored = localStorage.getItem("notifications_unread_count")
+    return stored !== null ? Number(stored) : 3
+  })
   const [imgError, setImgError] = useState(false)
 
   const photoUrl = formatPhotoUrl(user?.profilePhoto || user?.avatarUrl)
@@ -37,8 +40,31 @@ const Navbar: React.FC<INavbarProps> = ({
     setImgError(false)
   }, [photoUrl])
 
+  useEffect(() => {
+    const handleNotificationsUpdate = (e: any) => {
+      if (typeof e.detail === "number") {
+        setNotificationsCount(e.detail)
+      } else {
+        const stored = localStorage.getItem("notifications_unread_count")
+        if (stored !== null) setNotificationsCount(Number(stored))
+      }
+    }
+
+    const handleStorage = () => {
+      const stored = localStorage.getItem("notifications_unread_count")
+      if (stored !== null) setNotificationsCount(Number(stored))
+    }
+
+    window.addEventListener("notificationsUpdated", handleNotificationsUpdate)
+    window.addEventListener("storage", handleStorage)
+    return () => {
+      window.removeEventListener("notificationsUpdated", handleNotificationsUpdate)
+      window.removeEventListener("storage", handleStorage)
+    }
+  }, [])
+
   const handleNotificationClick = () => {
-    navigate("/settings")
+    navigate("/notifications")
   }
 
   return (
@@ -125,6 +151,20 @@ const Navbar: React.FC<INavbarProps> = ({
                 My Profile
               </Link>
             </li>
+
+            {/* <li>
+              <Link
+                to="/notifications"
+                className="flex justify-between items-center hover:bg-blue-50 hover:text-blue-700 px-3 py-2 rounded-md transition text-gray-700 font-medium text-xs"
+              >
+                <span>Notifications</span>
+                {notificationsCount > 0 && (
+                  <span className="px-1.5 py-0.2 bg-blue-600 text-white rounded-full text-[10px] font-bold">
+                    {notificationsCount}
+                  </span>
+                )}
+              </Link>
+            </li> */}
 
             <li>
               <Link

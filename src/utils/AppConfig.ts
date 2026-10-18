@@ -17,6 +17,7 @@ export const AppConfig: IAppConfig = {
 // Navigation Items
 export const UserNavigation: INavigationItem[] = [
   { name: "My Profile", href: "/profile" },
+  { name: "Notifications", href: "/notifications" },
   { name: "Settings", href: "/settings" },
   { name: "Logout", href: "/logout" },
 ]
