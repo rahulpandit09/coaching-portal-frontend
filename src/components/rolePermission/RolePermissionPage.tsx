@@ -21,9 +21,27 @@ type UserRow = {
 
 const MODULES = [
     "Dashboard",
-    "Manage Attendance",
-    "Manage User",
-    "Reports",
+    "User Management",
+    "Role & Permission Management",
+    "Student Management",
+    "Parent Management",
+    "Teacher Management",
+    "Tutor Management",
+    "Class Management",
+    "Subject Management",
+    "Batch Management",
+    "Attendance Management",
+    "Timetable Management",
+    "Course Management",
+    "Study Materials",
+    "Homework & Assignments",
+    "Exam Management",
+    "Results & Grades",
+    "Fees & Payments",
+    "Notifications",
+    "Reports & Analytics",
+    "Profile Management",
+    "Settings",
 ];
 
 const INITIAL_USERS: UserRow[] = [
