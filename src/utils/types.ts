@@ -88,3 +88,22 @@ export interface IResourceItem {
   sharedBy: string
   dateShared: string
 }
+
+// RolePermissionPage types
+export interface Role {
+  roleId: number;
+  name: string;
+}
+
+export interface PermissionItem {
+  id: number;
+  name: string;
+  code: string;
+}
+
+export interface PermissionGroup {
+  id: number;
+  name: string;
+  icon: string;
+  permissions: PermissionItem[];
+}
