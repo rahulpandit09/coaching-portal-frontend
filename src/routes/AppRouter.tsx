@@ -25,6 +25,7 @@ import AccessWrapper from "@/routes/AccessWrapper";
 // User Management
 import UserManagement from "../components/userManagement/userManagementDashboard/UserManagement";
 import AddNewUserPage from "../components/userManagement/addNewUse/AddNewUser";
+import RolePermissionPage from "@/components/rolePermission/RolePermissionPage";
 
 interface IAppRouterProps {
   isOpenMenu: boolean;
@@ -168,6 +169,19 @@ const AppRouter: React.FC<IAppRouterProps> = ({ isOpenMenu }) => {
           element={
             <AccessWrapper requireSubMenu="/user-management/roles-permissions">
               <Roles />
+            </AccessWrapper>
+          }
+        />
+
+
+        {/* ROLE & PERMISSION */}
+        <Route
+          path="/user-management/role-permission"
+          element={
+            <AccessWrapper
+              requireSubMenu="/user-management/role-permission"
+            >
+              <RolePermissionPage />
             </AccessWrapper>
           }
         />
