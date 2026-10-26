@@ -107,3 +107,253 @@ export interface PermissionGroup {
   icon: string;
   permissions: PermissionItem[];
 }
+
+// dummy data for role permission table page
+
+export type UserRow = {
+    id: number;
+    employeeCode: string;
+    fullName: string;
+    type: string;
+    stationName: string;
+    role: string;
+    permissions: Record<string, string>;
+};
+
+export const MODULES = [
+    "Dashboard",
+    "User Management",
+    "Role & Permission Management",
+    "Student Management",
+    "Parent Management",
+    "Teacher Management",
+    "Tutor Management",
+    "Class Management",
+    "Subject Management",
+    "Batch Management",
+    "Attendance Management",
+    "Timetable Management",
+    "Course Management",
+    "Study Materials",
+    "Homework & Assignments",
+    "Exam Management",
+    "Results & Grades",
+    "Fees & Payments",
+    "Notifications",
+    "Reports & Analytics",
+    "Profile Management",
+    "Settings",
+];
+
+export const INITIAL_USERS: UserRow[] = [
+    {
+        id: 1,
+        employeeCode: "TUT001",
+        fullName: "Rahul Kumar",
+        type: "Tutor",
+        stationName: "Head Office",
+        role: "Tutor",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "Create / Edit",
+            "Role & Permission": "Manage",
+            Attendance: "Manage",
+            Reports: "View",
+        },
+    },
+    {
+        id: 2,
+        employeeCode: "TCH001",
+        fullName: "Aaditya Singh",
+        type: "Teacher",
+        stationName: "Main Campus",
+        role: "Teacher",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "Create / Edit",
+            Reports: "View",
+        },
+    },
+    {
+        id: 3,
+        employeeCode: "STU001",
+        fullName: "Arvi Arya",
+        type: "Student",
+        stationName: "Main Campus",
+        role: "Student",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "View",
+            Reports: "-",
+        },
+    },
+    {
+        id: 4,
+        employeeCode: "PAR001",
+        fullName: "Aman Tiwari",
+        type: "Parent",
+        stationName: "Main Campus",
+        role: "Parent",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "View",
+            Reports: "View",
+        },
+    },
+    {
+        id: 5,
+        employeeCode: "TUT002",
+        fullName: "Pooja Sharma",
+        type: "Tutor",
+        stationName: "North Branch",
+        role: "Tutor",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "View",
+            "Role & Permission": "-",
+            Attendance: "Manage",
+            Reports: "Create / Edit",
+        },
+    },
+    {
+        id: 6,
+        employeeCode: "TCH002",
+        fullName: "Vikram Malhotra",
+        type: "Teacher",
+        stationName: "South Wing",
+        role: "Teacher",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "Create / Edit",
+            Reports: "View",
+        },
+    },
+    {
+        id: 7,
+        employeeCode: "STU002",
+        fullName: "Sneha Patel",
+        type: "Student",
+        stationName: "Main Campus",
+        role: "Student",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "View",
+            Reports: "-",
+        },
+    },
+    {
+        id: 8,
+        employeeCode: "PAR002",
+        fullName: "Rajesh Gupta",
+        type: "Parent",
+        stationName: "North Branch",
+        role: "Parent",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "View",
+            Reports: "View",
+        },
+    },
+    {
+        id: 9,
+        employeeCode: "TUT003",
+        fullName: "Neha Verma",
+        type: "Tutor",
+        stationName: "East Campus",
+        role: "Tutor",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "Create / Edit",
+            "Role & Permission": "View",
+            Attendance: "Manage",
+            Reports: "Manage",
+        },
+    },
+    {
+        id: 10,
+        employeeCode: "TCH003",
+        fullName: "Anil Deshmukh",
+        type: "Teacher",
+        stationName: "West Campus",
+        role: "Teacher",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "Manage",
+            Reports: "View",
+        },
+    },
+    {
+        id: 11,
+        employeeCode: "STU003",
+        fullName: "Rohan Joshi",
+        type: "Student",
+        stationName: "East Campus",
+        role: "Student",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "View",
+            Reports: "-",
+        },
+    },
+    {
+        id: 12,
+        employeeCode: "PAR003",
+        fullName: "Sunita Reddy",
+        type: "Parent",
+        stationName: "West Campus",
+        role: "Parent",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "View",
+            Reports: "View",
+        },
+    },
+    {
+        id: 13,
+        employeeCode: "TUT004",
+        fullName: "Deepak Choudhary",
+        type: "Tutor",
+        stationName: "Head Office",
+        role: "Tutor",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "Manage",
+            "Role & Permission": "Manage",
+            Attendance: "Manage",
+            Reports: "Manage",
+        },
+    },
+    {
+        id: 14,
+        employeeCode: "TCH004",
+        fullName: "Meera Nair",
+        type: "Teacher",
+        stationName: "Main Campus",
+        role: "Teacher",
+        permissions: {
+            Dashboard: "View",
+            "User Management": "-",
+            "Role & Permission": "-",
+            Attendance: "Create / Edit",
+            Reports: "Create / Edit",
+        },
+    },
+];
