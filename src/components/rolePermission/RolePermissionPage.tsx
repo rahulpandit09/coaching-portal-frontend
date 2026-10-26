@@ -6,14 +6,14 @@ import {
     ChevronDown,
 } from "lucide-react";
 import RolePermissionTable from "./RolePermissionTable";
-import RolePermissionModal from "./RolePermissionModal";
+import RolePermissionMatrix from "./RolePermissionMatrix";
 import { INITIAL_USERS, type UserRow } from "@/utils/types";
 
 export default function RolePermissionPage() {
     const [users, setUsers] = useState<UserRow[]>(INITIAL_USERS);
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState("All");
-    const [editingUser, setEditingUser] = useState<UserRow | null>(null);
+    const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
 
     const filteredUsers = useMemo(() => {
         const query = search.trim().toLowerCase();
@@ -32,14 +32,28 @@ export default function RolePermissionPage() {
         });
     }, [users, search, roleFilter]);
 
-    const handleSaveUser = (updatedUser: UserRow) => {
+    const handleSavePermissions = (updatedUser: UserRow) => {
         setUsers((previous) =>
             previous.map((user) =>
                 user.id === updatedUser.id ? updatedUser : user,
             ),
         );
-        setEditingUser(null);
+        setSelectedUser(null);
     };
+
+    const handleEditAccess = (user: UserRow) => {
+        setSelectedUser(user);
+    };
+
+    if (selectedUser) {
+        return (
+            <RolePermissionMatrix
+                user={selectedUser}
+                onBack={() => setSelectedUser(null)}
+                onSave={handleSavePermissions}
+            />
+        );
+    }
 
     return (
         <div className="space-y-4">
@@ -112,15 +126,7 @@ export default function RolePermissionPage() {
             <RolePermissionTable
                 users={filteredUsers}
                 totalUsersCount={users.length}
-                onEditUser={(user) => setEditingUser(user)}
-            />
-
-            {/* Popup Modal Component */}
-            <RolePermissionModal
-                isOpen={Boolean(editingUser)}
-                user={editingUser}
-                onClose={() => setEditingUser(null)}
-                onSave={handleSaveUser}
+                onEditUser={handleEditAccess}
             />
         </div>
     );

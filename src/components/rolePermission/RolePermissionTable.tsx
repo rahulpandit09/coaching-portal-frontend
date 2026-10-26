@@ -1,5 +1,6 @@
-import { Pencil } from "lucide-react";
+import { Pencil, Check } from "lucide-react";
 import { MODULES, type UserRow } from "@/utils/types";
+import { isModuleEnabled } from "./RolePermissionMatrix";
 
 interface RolePermissionTableProps {
     users: UserRow[];
@@ -46,7 +47,7 @@ export default function RolePermissionTable({
                             </th>
                             <th
                                 rowSpan={2}
-                                className="sticky right-0 top-0 z-40 w-[80px] min-w-[80px] border border-slate-300 bg-slate-200 px-3 py-3 text-center font-semibold"
+                                className="sticky right-0 top-0 z-40 w-[90px] min-w-[90px] border border-slate-300 bg-slate-200 px-3 py-3 text-center font-semibold"
                             >
                                 Edit
                             </th>
@@ -84,23 +85,37 @@ export default function RolePermissionTable({
                                     </span>
                                 </td>
 
-                                {modules.map((module) => (
-                                    <td
-                                        key={module}
-                                        className="w-[180px] min-w-[180px] whitespace-nowrap border border-slate-200 px-3 py-3 text-center"
-                                    >
-                                        {user.permissions[module] || "-"}
-                                    </td>
-                                ))}
+                                {modules.map((module) => {
+                                    const isEnabled = isModuleEnabled(user.permissions[module]);
 
-                                <td className="sticky right-0 z-10 w-[80px] min-w-[80px] border border-slate-200 bg-white px-3 py-3 text-center group-hover:bg-orange-50">
+                                    return (
+                                        <td
+                                            key={module}
+                                            className="w-[180px] min-w-[180px] whitespace-nowrap border border-slate-200 px-3 py-3 text-center"
+                                        >
+                                            {isEnabled ? (
+                                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                                                    <Check className="h-3 w-3" />
+                                                    Enabled
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-400">
+                                                    Disabled
+                                                </span>
+                                            )}
+                                        </td>
+                                    );
+                                })}
+
+                                <td className="sticky right-0 z-10 w-[90px] min-w-[90px] border border-slate-200 bg-white px-3 py-3 text-center group-hover:bg-orange-50">
                                     <button
                                         type="button"
                                         title={`Edit access for ${user.fullName}`}
                                         onClick={() => onEditUser(user)}
-                                        className="rounded-md p-2 text-blue-600 hover:bg-blue-50"
+                                        className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium text-blue-600 hover:bg-blue-50 hover:text-blue-800"
                                     >
-                                        <Pencil className="h-4 w-4" />
+                                        <Pencil className="h-3.5 w-3.5" />
+                                        <span>Edit</span>
                                     </button>
                                 </td>
                             </tr>
