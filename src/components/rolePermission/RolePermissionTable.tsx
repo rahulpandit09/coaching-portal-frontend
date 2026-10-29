@@ -1,5 +1,5 @@
 import { Pencil, Check } from "lucide-react";
-import { MODULES, type UserRow } from "@/utils/types";
+import type { UserRow } from "@/utils/types";
 import { isModuleEnabled } from "./RolePermissionMatrix";
 
 interface RolePermissionTableProps {
@@ -12,7 +12,7 @@ interface RolePermissionTableProps {
 export default function RolePermissionTable({
     users,
     totalUsersCount,
-    modules = MODULES,
+    modules = [],
     onEditUser,
 }: RolePermissionTableProps) {
     return (
@@ -20,48 +20,35 @@ export default function RolePermissionTable({
             <div className="hide-scrollbar-x relative max-h-[calc(100vh-340px)] min-h-[300px] w-full overflow-auto">
                 <table className="w-max min-w-full border-separate border-spacing-0 text-left text-sm">
                     <thead>
-                        <tr className="h-[49px] bg-slate-200 text-slate-700">
+                        <tr className="bg-slate-200 text-slate-700">
                             <th
-                                rowSpan={2}
-                                className="sticky left-0 top-0 z-40 w-[130px] min-w-[130px] border border-slate-300 bg-slate-200 px-3 py-3 text-left font-semibold"
+                                className="sticky left-0 top-0 z-40 w-[130px] min-w-[130px] border border-slate-300 bg-slate-200 px-3 py-3.5 text-left text-xs font-semibold"
                             >
                                 User ID
                             </th>
                             <th
-                                rowSpan={2}
-                                className="sticky left-[130px] top-0 z-40 w-[200px] min-w-[200px] border border-slate-300 bg-slate-200 px-3 py-3 text-left font-semibold"
+                                className="sticky left-[130px] top-0 z-40 w-[200px] min-w-[200px] border border-slate-300 bg-slate-200 px-3 py-3.5 text-left text-xs font-semibold"
                             >
                                 Full Name
                             </th>
                             <th
-                                rowSpan={2}
-                                className="sticky left-[330px] top-0 z-40 w-[130px] min-w-[130px] border border-slate-300 bg-slate-200 px-3 py-3 text-left font-semibold"
+                                className="sticky left-[330px] top-0 z-40 w-[130px] min-w-[130px] border border-slate-300 bg-slate-200 px-3 py-3.5 text-left text-xs font-semibold"
                             >
                                 Role
                             </th>
-                            <th
-                                colSpan={modules.length}
-                                className="sticky top-0 z-20 border border-slate-300 bg-slate-200 px-3 py-3 text-center font-semibold text-blue-700"
-                            >
-                                Module-Specific Permissions
-                            </th>
-                            <th
-                                rowSpan={2}
-                                className="sticky right-0 top-0 z-40 w-[90px] min-w-[90px] border border-slate-300 bg-slate-200 px-3 py-3 text-center font-semibold"
-                            >
-                                Edit
-                            </th>
-                        </tr>
-
-                        <tr className="bg-slate-100 text-slate-700">
                             {modules.map((module) => (
                                 <th
                                     key={module}
-                                    className="sticky top-[49px] z-20 w-[180px] min-w-[180px] border border-slate-300 bg-slate-100 px-3 py-3 text-center font-medium"
+                                    className="sticky top-0 z-20 w-[180px] min-w-[180px] border border-slate-300 bg-slate-200 px-3 py-3.5 text-center text-xs font-semibold"
                                 >
                                     {module}
                                 </th>
                             ))}
+                            <th
+                                className="sticky right-0 top-0 z-40 w-[90px] min-w-[90px] border border-slate-300 bg-slate-200 px-3 py-3.5 text-center text-xs font-semibold"
+                            >
+                                Edit
+                            </th>
                         </tr>
                     </thead>
 

@@ -165,24 +165,49 @@ const AppRouter: React.FC<IAppRouterProps> = ({ isOpenMenu }) => {
           }
         />
 
+        {/* =========================
+            ROLE & PERMISSION
+        ========================== */}
+
         <Route
           path="/user-management/roles-permissions"
           element={
-            <AccessWrapper requireSubMenu="/user-management/roles-permissions">
-              <Roles />
+            <AccessWrapper
+              requireSubMenu={[
+                "/user-management/roles-permissions",
+                "/user-management/role-permission",
+              ]}
+            >
+              <RolePermissionPage />
             </AccessWrapper>
           }
         />
 
-
-        {/* ROLE & PERMISSION */}
         <Route
           path="/user-management/role-permission"
           element={
             <AccessWrapper
-              requireSubMenu="/user-management/role-permission"
+              requireSubMenu={[
+                "/user-management/roles-permissions",
+                "/user-management/role-permission",
+              ]}
             >
               <RolePermissionPage />
+            </AccessWrapper>
+          }
+        />
+
+        <Route
+          path="/user-management/roles"
+          element={
+            <AccessWrapper
+              requireSubMenu={[
+                "/user-management/roles-permissions",
+                "/user-management/role-permission",
+              ]}
+              allowRoles={[1]}
+            >
+              <Roles />
             </AccessWrapper>
           }
         />
