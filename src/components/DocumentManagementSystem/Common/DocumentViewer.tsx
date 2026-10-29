@@ -360,7 +360,7 @@ export async function renderFileInTab({
 
     console.log("Excel sheet names:", wb.SheetNames);
 
-    const sheetsHtml = wb.SheetNames.map((sheetName) => {
+    const sheetsHtml = wb.SheetNames.map((sheetName: string) => {
       const worksheet = wb.Sheets[sheetName];
 
       if (!worksheet) {
