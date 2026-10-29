@@ -3,8 +3,8 @@ import { useAuth } from "@/contexts/auth"
 import { Navigate } from "react-router-dom"
 
 type Props = {
-  requireMenu?: string
-  requireSubMenu?: string
+  requireMenu?: string | string[]
+  requireSubMenu?: string | string[]
   allowRoles?: number[]
   children: React.ReactNode | JSX.Element
 }
@@ -30,23 +30,33 @@ export default function AccessWrapper({
   }
 
   // Main menu check failure
-  if (requireMenu && !hasMenu(requireMenu)) {
-    console.warn("⛔ [AccessWrapper] Access Denied by Menu URL:", {
-      requireMenu,
-      availableMenus: Array.from(permissions?.menus || []),
-      user: user,
-    })
-    return <Navigate to="/not-found" replace />
+  if (requireMenu) {
+    const isMenuAllowed = Array.isArray(requireMenu)
+      ? requireMenu.some(hasMenu)
+      : hasMenu(requireMenu)
+    if (!isMenuAllowed) {
+      console.warn("⛔ [AccessWrapper] Access Denied by Menu URL:", {
+        requireMenu,
+        availableMenus: Array.from(permissions?.menus || []),
+        user: user,
+      })
+      return <Navigate to="/not-found" replace />
+    }
   }
 
   // Sub menu check failure
-  if (requireSubMenu && !hasSubMenu(requireSubMenu)) {
-    console.warn("⛔ [AccessWrapper] Access Denied by SubMenu URL:", {
-      requireSubMenu,
-      availableSubMenus: Array.from(permissions?.subMenus || []),
-      user: user,
-    })
-    return <Navigate to="/not-found" replace />
+  if (requireSubMenu) {
+    const isSubMenuAllowed = Array.isArray(requireSubMenu)
+      ? requireSubMenu.some(hasSubMenu)
+      : hasSubMenu(requireSubMenu)
+    if (!isSubMenuAllowed) {
+      console.warn("⛔ [AccessWrapper] Access Denied by SubMenu URL:", {
+        requireSubMenu,
+        availableSubMenus: Array.from(permissions?.subMenus || []),
+        user: user,
+      })
+      return <Navigate to="/not-found" replace />
+    }
   }
 
   console.log("✅ [AccessWrapper] Access Granted for:", {

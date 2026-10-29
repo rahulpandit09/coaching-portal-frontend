@@ -26,6 +26,7 @@ import AccessWrapper from "@/routes/AccessWrapper";
 import UserManagement from "../components/userManagement/userManagementDashboard/UserManagement";
 import AddNewUserPage from "../components/userManagement/addNewUse/AddNewUser";
 import RolePermissionPage from "@/components/rolePermission/RolePermissionPage";
+import DmsDashboard from "@/components/DocumentManagementSystem/Dashboard/DmsDashboard";
 
 interface IAppRouterProps {
   isOpenMenu: boolean;
@@ -182,6 +183,95 @@ const AppRouter: React.FC<IAppRouterProps> = ({ isOpenMenu }) => {
               requireSubMenu="/user-management/role-permission"
             >
               <RolePermissionPage />
+            </AccessWrapper>
+          }
+        />
+
+
+        {/* =========================
+            DOCUMENT MANAGEMENT SYSTEM (DMS)
+        ========================== */}
+
+        {/* Main route from menu */}
+        <Route
+          path="/dashboard/document-management-system"
+          element={
+            <AccessWrapper
+              requireSubMenu={[
+                "/dashboard/document-management-system",
+                "/hr-admin/document-management-system",
+              ]}
+            >
+              <DmsDashboard />
+            </AccessWrapper>
+          }
+        />
+
+        {/* Legacy HR Admin route */}
+        <Route
+          path="/hr-admin/document-management-system"
+          element={
+            <AccessWrapper
+              requireSubMenu={[
+                "/dashboard/document-management-system",
+                "/hr-admin/document-management-system",
+              ]}
+            >
+              <DmsDashboard />
+            </AccessWrapper>
+          }
+        />
+
+        {/* DMS role-based routes */}
+        <Route
+          path="/dms"
+          element={
+            <AccessWrapper
+              requireSubMenu={[
+                "/dashboard/document-management-system",
+                "/hr-admin/document-management-system",
+              ]}
+            >
+              <DmsDashboard />
+            </AccessWrapper>
+          }
+        />
+        <Route
+          path="/dms/admin"
+          element={
+            <AccessWrapper
+              requireSubMenu={[
+                "/dashboard/document-management-system",
+                "/hr-admin/document-management-system",
+              ]}
+            >
+              <DmsDashboard />
+            </AccessWrapper>
+          }
+        />
+        <Route
+          path="/dms/publisher"
+          element={
+            <AccessWrapper
+              requireSubMenu={[
+                "/dashboard/document-management-system",
+                "/hr-admin/document-management-system",
+              ]}
+            >
+              <DmsDashboard />
+            </AccessWrapper>
+          }
+        />
+        <Route
+          path="/dms/user"
+          element={
+            <AccessWrapper
+              requireSubMenu={[
+                "/dashboard/document-management-system",
+                "/hr-admin/document-management-system",
+              ]}
+            >
+              <DmsDashboard />
             </AccessWrapper>
           }
         />
